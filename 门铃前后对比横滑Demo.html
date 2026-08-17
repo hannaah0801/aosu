@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>门铃 · 前后对比动图横滑 Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+background:#eef1f5;color:#1a1f26;padding:26px 18px 60px;line-height:1.55}
+.wrap{max-width:1250px;margin:0 auto}
+h1{font-size:23px;font-weight:700;color:#1B5A9E;margin-bottom:5px}
+.sub{font-size:13px;color:#667;margin-bottom:12px}
+.warn{font-size:12px;color:#1B5A9E;background:#E9F1FA;border-radius:6px;padding:8px 12px;display:block;margin-bottom:16px}
+.ctrls{display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #e0e5ea;
+border-radius:10px;padding:11px 15px;margin-bottom:20px}
+.ctrls>div{display:flex;gap:8px;align-items:center}
+.ctrls span.lb{font-size:12.5px;color:#5a636e;font-weight:600}
+.seg{display:flex;border:1px solid #d3d9e0;border-radius:7px;overflow:hidden}
+.seg button{padding:6px 12px;font-size:12.5px;background:#fff;border:0;cursor:pointer;color:#4a535e;font-weight:600}
+.seg button+button{border-left:1px solid #d3d9e0}
+.seg button.on{background:#1B5A9E;color:#fff}
+.main{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+
+/* ================= phone ================= */
+.ph{width:326px;background:#fff;border-radius:36px;border:9px solid #0d1319;overflow:hidden;
+box-shadow:0 14px 38px rgba(15,30,50,.22);flex:0 0 auto}
+.stat{display:flex;justify-content:space-between;padding:10px 17px 2px;font-size:12px;font-weight:700;color:#14212e}
+.nav{display:flex;align-items:center;padding:4px 15px 10px;color:#14212e}
+.nav .t{flex:1;text-align:center;font-size:15px;font-weight:800}
+.nav .x{font-size:17px;line-height:1;color:#98a0aa}
+.nav .sp{width:14px}
+
+/* ---- carousel ---- */
+.car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:9px;padding:0 16px 4px;
+scrollbar-width:none;cursor:grab}
+.car::-webkit-scrollbar{display:none}
+.car.drag{cursor:grabbing}
+.card{flex:0 0 254px;scroll-snap-align:start;background:#fff;border:1px solid #E6EAEF;border-radius:14px;
+padding:10px 10px 9px;user-select:none}
+.card .ct{font-size:13.5px;font-weight:900;color:#11181f;line-height:1.2;letter-spacing:-.2px}
+.card .cs{font-size:10px;color:#98a0aa;margin-top:2px;line-height:1.3;min-height:26px}
+.hdr{display:flex;margin-top:7px;font-size:9.5px;font-weight:900;letter-spacing:.4px}
+.hdr .hl{flex:1;text-align:center;color:#A8B2BC}
+.hdr .hr{flex:1;text-align:center;color:#1B5A9E}
+.hdr .hr b{color:#11181f}
+.split{display:flex;gap:0;margin-top:4px;position:relative}
+.split .dv{position:absolute;left:50%;top:0;bottom:0;width:0;border-left:1.5px dashed #C6D3E2;z-index:5}
+.pane{flex:1;height:132px;border-radius:9px;overflow:hidden;position:relative}
+.pane.l{filter:saturate(.18) brightness(1.04);border-radius:9px 0 0 9px}
+.pane.r{border-radius:0 9px 9px 0}
+.bdg{position:absolute;top:5px;left:5px;z-index:6;font-size:8px;font-weight:900;letter-spacing:.2px;
+padding:2px 5px;border-radius:5px;background:rgba(30,40,52,.62);color:#fff;display:flex;align-items:center;gap:3px}
+.bdg.b{background:#2D7FF9}
+.take{display:flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:800;color:#1B5A9E;line-height:1.3}
+.take i{font-style:normal;font-size:11px}
+
+/* ---- scene: porch (card1) ---- */
+.porch{position:absolute;inset:0;background:linear-gradient(172deg,#AFC9E2 0%,#C6D9EA 40%,#8FA98D 41%,#7A9479 100%)}
+.porch .door{position:absolute;left:8%;top:14%;width:40%;height:66%;border-radius:3px;
+background:linear-gradient(100deg,#9A7A5C,#7C6047);border:1px solid #6B5238}
+.porch .dk{position:absolute;left:44%;top:46%;width:4px;height:4px;border-radius:50%;background:#E8DCC4}
+.porch .man{position:absolute;right:14%;bottom:9%;width:34px;height:70px}
+.porch .man .h{position:absolute;left:50%;top:0;transform:translateX(-50%);width:19px;height:19px;
+border-radius:50%;background:#C99B72}
+.porch .man .bd{position:absolute;left:50%;top:17px;transform:translateX(-50%);width:30px;height:44px;
+border-radius:11px 11px 5px 5px;background:#3E5F86}
+.porch .man .bx{position:absolute;left:2px;bottom:16px;width:15px;height:11px;border-radius:2px;background:#C8A87E}
+.prog{position:absolute;bottom:4px;left:5px;right:5px;height:2.5px;border-radius:2px;background:rgba(255,255,255,.34);z-index:6}
+.prog i{display:block;height:100%;border-radius:2px;background:#fff;width:0}
+.dur{position:absolute;bottom:8px;right:6px;z-index:6;font-size:8px;font-weight:800;color:#fff;
+text-shadow:0 1px 3px rgba(0,0,0,.6)}
+
+.det{position:absolute;z-index:7;border:1.5px solid #E8EDF2;border-radius:2px;opacity:0;transition:.25s;
+right:9%;bottom:6%;width:46px;height:78px;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.det .dl{position:absolute;top:-13px;left:-1px;font-size:7.5px;font-weight:900;letter-spacing:.3px;
+background:#E8EDF2;color:#3a424c;padding:1px 4px;border-radius:3px;white-space:nowrap}
+.ret{position:absolute;z-index:7;right:16%;top:16%;width:30px;height:34px;border-radius:50%;
+border:2px solid #3B9EFF;opacity:0;transform:scale(1.5);transition:.3s;
+box-shadow:0 0 0 3px rgba(59,158,255,.2),0 0 12px rgba(59,158,255,.45)}
+.chip{position:absolute;z-index:8;right:8%;top:52%;opacity:0;transform:translateY(7px);transition:.3s;
+background:#2D7FF9;color:#fff;font-size:9px;font-weight:900;padding:3px 7px;border-radius:12px;
+box-shadow:0 3px 9px rgba(20,70,140,.4);white-space:nowrap}
+.chip.st{background:#E8502E;box-shadow:0 3px 9px rgba(180,50,25,.4)}
+.pu{position:absolute;z-index:9;left:5px;right:5px;bottom:11px;opacity:0;transform:translateY(12px);
+transition:.3s;background:rgba(248,250,252,.96);border-radius:8px;padding:4px 6px;
+box-shadow:0 4px 12px rgba(10,20,35,.28)}
+.pu .pt{font-size:7.5px;font-weight:900;color:#8b939c;letter-spacing:.2px}
+.pu .pb{font-size:9px;font-weight:800;color:#16202b;line-height:1.25;margin-top:1px}
+
+/* ---- scene: timeline (card2) ---- */
+.tl{position:absolute;inset:0;background:linear-gradient(178deg,#F4F7FA,#E8EEF4);padding:9px 7px}
+.tl .ttl{font-size:8px;font-weight:900;color:#8b939c;letter-spacing:.3px}
+.tl .track{position:absolute;left:7px;right:7px;top:52px;height:34px}
+.tl .track .ax{position:absolute;left:0;right:0;bottom:0;height:1.5px;background:#C6D0DA}
+.tl .bars{position:absolute;left:0;right:0;bottom:2px;height:30px;display:flex;align-items:flex-end;gap:2px}
+.tl .bars i{flex:1;background:#9DB8D4;border-radius:1px}
+.tl .bars i.gone{background:repeating-linear-gradient(45deg,#DDE3E9 0 2px,#EFF2F5 2px 4px)}
+.tl .sc{position:absolute;top:-8px;bottom:-8px;width:2px;background:#2D7FF9;border-radius:2px;
+transition:left .45s cubic-bezier(.4,0,.2,1);box-shadow:0 0 7px rgba(45,127,249,.5)}
+.tl .sc:after{content:"";position:absolute;top:-4px;left:-3px;width:8px;height:8px;border-radius:50%;
+background:#2D7FF9;box-shadow:0 0 0 2px #fff}
+.tl .wall{position:absolute;top:-8px;bottom:-8px;width:0;border-left:1.5px dashed #E8502E}
+.tl .lbs{position:absolute;left:7px;right:7px;top:90px;display:flex;justify-content:space-between;
+font-size:7.5px;font-weight:800;color:#a8b0b8}
+.res{position:absolute;left:7px;right:7px;top:20px;opacity:0;transform:translateY(-5px);transition:.3s}
+.res .rb{border-radius:7px;padding:4px 7px;font-size:8.5px;font-weight:900;line-height:1.3;
+display:flex;align-items:center;gap:5px}
+.res .rb.no{background:#FDECE8;color:#B03A24;border:1px solid #F6CFC6}
+.res .rb.ok{background:#EAF3FF;color:#1B5A9E;border:1px solid #CBE0F8}
+.res .rb .th{width:22px;height:16px;border-radius:3px;flex:0 0 22px;
+background:linear-gradient(160deg,#AFC9E2,#7A9479)}
+.bk{position:absolute;left:7px;right:7px;bottom:8px;opacity:0;transition:.3s;
+font-size:8px;font-weight:800;color:#1B7A4F;background:#EAF6EF;border:1px solid #C9E7D6;
+border-radius:6px;padding:3px 6px;display:flex;align-items:center;gap:4px}
+.bk.gy{color:#98a0aa;background:#F1F3F6;border-color:#E1E5EA}
+
+/* ---- scene: alerts (card3) ---- */
+.al{position:absolute;inset:0;background:linear-gradient(178deg,#2C3E55,#1A2634);padding:7px 6px}
+.al .cnt{display:flex;align-items:baseline;gap:3px;color:#fff;padding:0 2px 4px}
+.al .cnt b{font-size:17px;font-weight:900;letter-spacing:-.6px;line-height:1}
+.al .cnt s{text-decoration:none;font-size:8px;font-weight:700;color:#9DB0C4}
+.al .lst{display:flex;flex-direction:column;gap:3px}
+.nt{background:rgba(240,244,249,.94);border-radius:6px;padding:3px 5px;display:flex;align-items:center;gap:4px;
+font-size:8px;font-weight:800;color:#16202b;opacity:0;transform:translateY(-5px) scale(.96);
+transition:.22s;line-height:1.2}
+.nt .ni{font-size:9px;flex:0 0 auto}
+.nt.dim{opacity:.3!important;filter:grayscale(1)}
+.nt.kill{opacity:0!important;transform:translateY(-4px) scale(.9)!important}
+.nt.keep{background:#EAF3FF;box-shadow:0 0 0 1.5px #4A9EFF}
+.fold{background:rgba(255,255,255,.11);border:1px dashed rgba(255,255,255,.3);border-radius:6px;
+padding:3px 5px;font-size:8px;font-weight:800;color:#A9BCD0;opacity:0;transition:.3s;text-align:center}
+.more{font-size:8px;font-weight:800;color:#9DB0C4;text-align:center;padding-top:2px;opacity:0;transition:.3s}
+
+/* ---- dots ---- */
+.dots{display:flex;justify-content:center;gap:5px;padding:9px 0 3px}
+.dots i{width:5px;height:5px;border-radius:3px;background:#D3D9E0;transition:.2s;cursor:pointer}
+.dots i.on{width:15px;background:#2D7FF9}
+.swipehint{text-align:center;font-size:9px;color:#b6bbc2;font-weight:700;letter-spacing:.3px;padding-bottom:2px}
+
+/* ---- body / price ---- */
+.bd{padding:2px 18px 0}
+.copy{font-size:10.5px;color:#7c848d;line-height:1.45;text-align:center;padding:0 2px}
+.copy b{color:#3a424c}
+.cd{display:flex;justify-content:center;align-items:center;gap:5px;margin-top:8px}
+.cd .off{background:#FF3B30;color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px}
+.cd .lbl{font-size:9.5px;color:#98a0aa;font-weight:600}
+.cd b{background:#2A2F36;color:#fff;font-size:9.5px;font-weight:800;padding:1px 4px;border-radius:3px;
+font-variant-numeric:tabular-nums;min-width:19px;text-align:center;display:inline-block}
+.cd i{font-style:normal;color:#2A2F36;font-weight:800;font-size:9px}
+.prices{display:flex;gap:10px;margin-top:9px}
+.pr{flex:1;border:1.5px solid #DFE4E9;border-radius:11px;padding:8px 6px 7px;position:relative;
+background:#fff;text-align:center;cursor:pointer}
+.pr.sel{border-color:#2D7FF9;border-width:2px;background:#F4F9FF;padding:7.5px 5.5px 6.5px}
+.pr .nm{font-size:11.5px;color:#5b636c;font-weight:700}
+.pr.sel .nm{color:#1B5A9E}
+.pr .v{font-size:18px;font-weight:900;color:#11181f;letter-spacing:-.5px;line-height:1.2}
+.pr .v u{font-size:10px;font-weight:600;color:#8b939c;text-decoration:none}
+.pr .v s{display:block;font-size:10px;color:#b6bbc2;font-weight:500}
+.pr .bg{position:absolute;top:-8px;right:5px;background:#FF3B30;color:#fff;font-size:9px;
+font-weight:900;padding:1px 5px;border-radius:5px;font-style:italic}
+.foot{padding:11px 18px 14px}
+.cta{background:linear-gradient(96deg,#2F86D8,#1F55BF);color:#fff;text-align:center;padding:13px;
+border-radius:26px;font-size:15px;font-weight:800;box-shadow:0 5px 14px rgba(35,95,180,.32);cursor:pointer}
+.fine{display:flex;font-size:9.5px;color:#a6acb3;line-height:1.45;margin-top:8px}
+.fine u{margin-left:auto;color:#5b636c;flex:0 0 auto;padding-left:10px}
+
+/* ================= panel ================= */
+.panel{flex:1;min-width:380px}
+.pc{background:#fff;border:1px solid #e2e7ec;border-radius:11px;padding:13px 16px;margin-bottom:11px}
+.pc h4{font-size:13.5px;font-weight:800;color:#16202b;margin-bottom:8px}
+table.t{width:100%;border-collapse:collapse;font-size:11.5px}
+table.t th{background:#F1F4F8;color:#4a535e;font-weight:700;padding:6px 9px;text-align:left;border:1px solid #E4E8ED}
+table.t td{padding:6px 9px;border:1px solid #E9ECF0;color:#3a424c;vertical-align:top}
+table.t td.u{font-weight:800;color:#16202b}
+table.t td.c{text-align:center;white-space:nowrap}
+.why{font-size:11.5px;color:#6b737c;line-height:1.6;margin-top:8px}
+.why b{color:#1a2430}
+.tip{font-size:11.5px;color:#525a64;background:#fff;border-left:3px solid #1B5A9E;
+padding:11px 13px;border-radius:0 7px 7px 0;line-height:1.65;margin-top:4px;margin-bottom:11px}
+.tip b{color:#1a2430}
+.tip.rd{border-left-color:#C00000}
+.tip.am{border-left-color:#D98800;background:#FFFCF6}
+.tip.gn{border-left-color:#1F7A3D;background:#F7FCF9}
+@media(max-width:840px){.panel{min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>门铃 · 前后对比动图 · 横滑三卡 Demo</h1>
+  <div class="sub">参考 Wyze Cam Plus 的左右分屏对比：同一段素材，左侧褪色冻结、右侧满色播放 · 三个权益点各一卡，可横滑（鼠标可直接拖）</div>
+  <div class="warn">⚠ 动画自动循环，<b>只有当前卡在播</b>（切卡即重置）。滑到底部还有第 2、3 卡。左侧「Basic」侧的文案会随机型切换 —— V8S 自带存储，说「No Recording」是错的，见右侧第 ② 条。</div>
+
+  <div class="ctrls">
+    <div><span class="lb">机型</span>
+      <div class="seg" id="sgModel">
+        <button data-v="std" class="on">V8P / V8E（无本地存储）</button>
+        <button data-v="v8s">V8S（自带存储）</button>
+      </div>
+    </div>
+    <div><span class="lb">左侧素材</span>
+      <div class="seg" id="sgSrc">
+        <button data-v="demo" class="on">通用演示素材</button>
+        <button data-v="own">用户自己的最近事件</button>
+      </div>
+    </div>
+    <div><span class="lb">动画</span>
+      <div class="seg" id="sgPlay">
+        <button data-v="on" class="on">播放</button>
+        <button data-v="off">暂停看单帧</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- ============ PHONE ============ -->
+    <div class="ph">
+      <div class="stat">14:12<span>▮▮▮ ⌁ ▰</span></div>
+      <div class="nav"><span class="sp"></span><span class="t" id="navT">Never miss who's there</span><span class="x">✕</span></div>
+
+      <div class="car" id="car">
+
+        <!-- ===== CARD 1 · 人脸识别 ===== -->
+        <div class="card" data-k="0">
+          <div class="ct">Motion, or Alex?</div>
+          <div class="cs">Basic tells you someone moved. Pro tells you it's your neighbor — before you get up.</div>
+          <div class="hdr"><span class="hl" id="h1l">BASIC</span><span class="hr">WITH <b>PRO</b></span></div>
+          <div class="split"><span class="dv"></span>
+            <!-- left -->
+            <div class="pane l">
+              <div class="porch"><span class="door"></span><span class="dk"></span>
+                <span class="man"><span class="h"></span><span class="bd"></span><span class="bx"></span></span></div>
+              <span class="bdg" id="b1l">◻ Person only</span>
+              <div class="det" id="c1_box"><span class="dl">PERSON</span></div>
+              <div class="pu" id="c1_pL"><div class="pt">AOSU · now</div>
+                <div class="pb">Person detected at Front Door</div></div>
+              <div class="prog"><i id="c1_gL"></i></div><span class="dur">0:12</span>
+            </div>
+            <!-- right -->
+            <div class="pane r">
+              <div class="porch"><span class="door"></span><span class="dk"></span>
+                <span class="man"><span class="h"></span><span class="bd"></span><span class="bx"></span></span></div>
+              <span class="bdg b">🙂 Face matched</span>
+              <div class="ret" id="c1_ret"></div>
+              <div class="chip" id="c1_chip">Alex · Neighbor</div>
+              <div class="pu" id="c1_pR"><div class="pt">AOSU · now</div>
+                <div class="pb">Alex is at your Front Door</div></div>
+              <div class="prog"><i id="c1_gR"></i></div><span class="dur">0:12</span>
+            </div>
+          </div>
+          <div class="take"><i>🙂</i><span>Stranger, neighbor, or named — you know before you open the door.</span></div>
+        </div>
+
+        <!-- ===== CARD 2 · 云存 ===== -->
+        <div class="card" data-k="1">
+          <div class="ct">Six months from now.</div>
+          <div class="cs" id="c2sub">The insurance claim comes in March. Basic deleted February.</div>
+          <div class="hdr"><span class="hl" id="h2l">BASIC · 30 DAYS</span><span class="hr">WITH <b>PRO · 180 DAYS</b></span></div>
+          <div class="split"><span class="dv"></span>
+            <div class="pane l">
+              <div class="tl">
+                <div class="ttl" id="c2_tL">SCRUB BACK · 30-DAY LIMIT</div>
+                <div class="res" id="c2_rL"><div class="rb no"><span>🚫</span><span id="c2_noTxt">No footage before Day 30</span></div></div>
+                <div class="track"><span class="ax"></span>
+                  <div class="bars" id="c2_bL"></div>
+                  <span class="wall" style="left:62%"></span>
+                  <span class="sc" id="c2_sL" style="left:96%"></span>
+                </div>
+                <div class="lbs"><span>Day 180</span><span id="c2_lbL">Day 30</span><span>Today</span></div>
+                <div class="bk gy" id="c2_bkL">⌾ On the doorbell / cloud 30d only</div>
+              </div>
+            </div>
+            <div class="pane r">
+              <div class="tl">
+                <div class="ttl" style="color:#1B5A9E">SCRUB BACK · 180 DAYS</div>
+                <div class="res" id="c2_rR"><div class="rb ok"><span class="th"></span><span>Found · Mar 12, 2:14 PM</span></div></div>
+                <div class="track"><span class="ax"></span>
+                  <div class="bars" id="c2_bR"></div>
+                  <span class="sc" id="c2_sR" style="left:96%"></span>
+                </div>
+                <div class="lbs"><span>Day 180</span><span>Day 30</span><span>Today</span></div>
+                <div class="bk" id="c2_bkR">☁ Off-site backup · safe if the doorbell goes</div>
+              </div>
+            </div>
+          </div>
+          <div class="take"><i>🗄</i><span id="c2take">Claims, police reports and disputes all come long after the event.</span></div>
+        </div>
+
+        <!-- ===== CARD 3 · 智能通知 ===== -->
+        <div class="card" data-k="2">
+          <div class="ct">14 alerts, or 2?</div>
+          <div class="cs">Your doorbell faces the street. Basic pushes every car. Pro pushes the two you'd actually get up for.</div>
+          <div class="hdr"><span class="hl">BASIC</span><span class="hr">WITH <b>PRO</b></span></div>
+          <div class="split"><span class="dv"></span>
+            <div class="pane l">
+              <div class="al">
+                <div class="cnt"><b id="c3_nL">0</b><s>alerts this hour</s></div>
+                <div class="lst" id="c3_lL"></div>
+                <div class="more" id="c3_more">+8 more</div>
+              </div>
+            </div>
+            <div class="pane r">
+              <div class="al" style="background:linear-gradient(178deg,#20344C,#132030)">
+                <div class="cnt"><b id="c3_nR">0</b><s>alerts this hour</s></div>
+                <div class="lst" id="c3_lR"></div>
+                <div class="fold" id="c3_fold">12 filtered out</div>
+              </div>
+            </div>
+          </div>
+          <div class="take"><i>🔕</i><span>Users who mute alerts almost never come back to subscribe.</span></div>
+        </div>
+      </div>
+
+      <div class="dots" id="dots"><i class="on"></i><i></i><i></i></div>
+      <div class="swipehint" id="hint">SWIPE TO SEE 2 MORE ›</div>
+
+      <div class="bd">
+        <div class="copy">180-day cloud history, face recognition and<br>noise-filtered alerts. <b>Doorbell only.</b></div>
+        <div class="cd"><span class="off">35% OFF</span><span class="lbl">ends in</span>
+          <b id="ch">47</b><i>:</i><b id="cm">12</b><i>:</i><b id="cs">28</b></div>
+        <div class="prices">
+          <div class="pr" id="prM"><div class="nm">Monthly</div><div class="v">$6.99<u>/mo</u></div></div>
+          <div class="pr sel" id="prA"><div class="bg">-35%</div><div class="nm">Annual</div>
+            <div class="v">$69.99<u>/yr</u><s>$107.99</s></div></div>
+        </div>
+      </div>
+      <div class="foot">
+        <div class="cta">Start My 30-Day Free Trial</div>
+        <div class="fine"><span id="fine">$69.99/yr after 30-day free trial.<br>Cancel anytime.</span><u>Cloud Storage Service</u></div>
+      </div>
+    </div>
+
+    <!-- ============ PANEL ============ -->
+    <div class="panel">
+      <div class="pc">
+        <h4>三张卡分别在演什么</h4>
+        <table class="t">
+          <tr><th style="width:15%">卡</th><th style="width:26%">同一份输入</th><th>左（Basic）→ 右（Pro）的动作</th></tr>
+          <tr><td class="u">① 人脸</td><td>同一次门口来访</td><td>左：灰框套住人 + 标签 PERSON，push「Person detected」<br>右：人脸圆环锁定 + 名字胶囊 Alex · Neighbor，push「<b>Alex is at your Front Door</b>」</td></tr>
+          <tr><td class="u">② 云存</td><td>同一条时间轴</td><td>左：游标往回拖，撞在 Day 30 的红色墙上 →「No footage before Day 30」<br>右：游标一路拖到 Day 174，弹出<b>找到的那一条</b>；底部常驻「Off-site backup」</td></tr>
+          <tr><td class="u">③ 通知</td><td>同一小时的事件流</td><td>左：卡片一张张砸进来，计数跳到 <b>14</b>，溢出「+8 more」<br>右：同一批进来，12 张灰掉消失折叠成「12 filtered out」，只留 <b>2</b> 张高亮</td></tr>
+        </table>
+        <div class="why"><b>三张卡共用一条原则：输入相同，结果不同。</b>这是 Wyze 那张图真正的力量 —— 它不是在比两个功能，而是在说「这个瞬间，你会错过 / 你能看到」。左右如果放两段不同素材，说服力立刻掉一半。</div>
+      </div>
+
+      <div class="tip gn"><b>① 最值得抄的一条：左侧放用户自己的最近事件</b><br>
+      Wyze 用的是一段通用猫开冰箱的素材，因为它要覆盖全线机型。<b>门铃线不需要将就</b> —— 事件列表里就有这台门铃最近一次的人形事件缩略图。把第 ① 卡左侧换成「你家门口昨天 6:14 PM 的那次」，右侧同一帧叠上人脸识别结果，对比就从「产品演示」变成「你自己的事」。<br>
+      上方控制条切到「用户自己的最近事件」可以看到文案差异。<b>实现成本主要在取图</b>：需要最近 7 天内一条人形事件的缩略图 + 时间戳；取不到时回落到通用素材，不要出空态。这条建议单独作为需求二的一个子项提。</div>
+
+      <div class="tip rd"><b>② V8S 上「No Recording」是错的，必须按机型换文案</b><br>
+      Wyze 左侧敢写「No Recording」，因为它的免费档确实不录。<b>aosu 的 Basic 是录的，V8S 还额外存在设备本地</b>。左侧沿用「No Recording」属于虚假陈述，FTC 风险 + 用户一眼看穿。<br>
+      按机型切换后的左侧口径：<br>
+      · <b>V8P / V8E</b> —— 「Person only」「30 days」：说的是<b>能力边界</b>，不是有没有录。<br>
+      · <b>V8S</b> —— 「On this doorbell only」「Gone with the doorbell」：不否认它录了，只指出<b>录在哪、丢了怎么办</b>。这就是之前定的<b>锁身份不锁画面</b>原则在这个模块上的落法。<br>
+      切到 V8S 可以看到第 ② 卡左侧红条文案变了。</div>
+
+      <div class="tip am"><b>③ 横滑的代价：第 2、3 卡大概率没人看</b><br>
+      Wyze 只放一组对比，占满主视觉，<b>不需要用户做任何动作</b>。改成横滑之后，第 ② ③ 卡要用户主动划才看得到 —— 按一般商城页的交互率，划到第二卡的比例通常不高。三件事要做：<br>
+      · <b>第一卡必须是最强的那个。</b>Demo 默认把人脸放第一，因为它是门铃唯一「非云存」的强卖点；但云存对非 V8S 机型的订阅率更好 —— <b>这正好是一个值得跑的 A/B：首卡放人脸 vs 放云存。</b><br>
+      · <b>露出下一张卡的边</b>（Demo 里右边留了一条），加圆点 + 「SWIPE TO SEE 2 MORE」，比纯圆点有效。<br>
+      · <b>埋点必须分卡</b>：卡曝光（划到即算）、卡停留时长、划动深度（1/2/3）、各卡上的 CTA 点击。<b>没有这组埋点，就无法回答「该不该做成横滑」</b>，请写进需求二的埋点清单。</div>
+
+      <div class="pc">
+        <h4>与现有商城页主视觉的关系（需要你拍一个）</h4>
+        <table class="t">
+          <tr><th style="width:22%">方案</th><th>一次看到几个权益</th><th>需要用户动作</th><th>说服深度</th></tr>
+          <tr><td class="u">现有：设备图 + 左右气泡</td><td class="c">3 条同时</td><td class="c">不需要</td><td class="c">浅（只有标签）</td></tr>
+          <tr><td class="u">本 Demo：横滑对比动图</td><td class="c">1 条（划才有 2、3）</td><td class="c">需要横滑</td><td class="c">深（演出结果差异）</td></tr>
+          <tr><td class="u">折中：动图占主视觉 + 气泡收成一行图标</td><td class="c">1 深 + 2 浅</td><td class="c">不需要</td><td class="c">中</td></tr>
+        </table>
+        <div class="why"><b>建议走第三种</b>：主视觉放第一卡的对比动图（不做横滑，或横滑作为二级），下方把另外两条权益压成一行小图标 + 短标签，点击才展开成对比。这样既保留「一屏看到三条」，又不牺牲第一条的说服深度。<br><br>
+        <b>但这是我的判断，不是结论。</b>要不要横滑取决于你们商城页的实际交互率 —— 建议先按本 Demo 的形态做实验组，对照组用现有气泡，看首屏 CTA 点击率与整体转化率，再决定要不要投入做折中方案。</div>
+      </div>
+
+      <div class="pc">
+        <h4>研发实现要点</h4>
+        <table class="t">
+          <tr><th style="width:24%">项</th><th>说明</th></tr>
+          <tr><td class="u">素材形态</td><td>Demo 用纯 CSS 动画演示。实际落地建议 <b>WebP 动图或短 MP4（静音、autoplay、loop、playsinline）</b>，单卡 ≤ 300KB；不要用 GIF（体积与色阶都差）。iOS 需 <code>playsinline</code> + <code>muted</code> 否则不自动播。</td></tr>
+          <tr><td class="u">只播当前卡</td><td>非当前卡暂停并重置到第一帧，避免三段动画同时解码。Demo 已实现（切卡即重置）。</td></tr>
+          <tr><td class="u">首屏加载</td><td>第一卡素材随页面加载，第 2、3 卡懒加载。首卡素材未就绪时先出静态首帧，不要出白块。</td></tr>
+          <tr><td class="u">横滑实现</td><td><code>scroll-snap-type: x mandatory</code> + <code>scroll-snap-align: start</code>，原生滚动即可，不需要引入轮播库。Demo 额外加了鼠标拖拽以便桌面端评审。</td></tr>
+          <tr><td class="u">左侧褪色</td><td>Demo 用 <code>filter: saturate(.18)</code>。若用真实素材，<b>不要做成模糊</b> —— 模糊会被理解成「画面被锁」，而 Basic 的画面并没有被锁。降饱和 + 停帧是准确的表达。</td></tr>
+          <tr><td class="u">多语言</td><td>名字胶囊「Alex · Neighbor」是英文语序，欧洲多语言下宽度会涨，胶囊需要可换行或截断。人脸识别在欧盟的可用性本身待确认。</td></tr>
+        </table>
+      </div>
+
+      <div class="tip"><b>待确认</b><br>
+      · <b>陌生人是否做了聚类计数</b> —— 若有，第 ① 卡右侧可以换成更强的「Unknown · 3rd time this week」（Demo 里预留了红色胶囊样式）；若没有，这句不能写。<br>
+      · <b>事件列表里的圆形头像是免费还是付费能力</b> —— 影响第 ① 卡左侧能不能出现头像。<br>
+      · <b>180 天 / 异地备份的实际口径</b> —— 现网商城页 Pro 显示 1-Year，与 180 天不一致，第 ② 卡的数字要按最终口径改。<br>
+      · <b>智能通知降噪的过滤比例</b> —— Demo 用「14 → 2」是示意值。<b>这个数字必须用真实统计</b>，写高了用户按真实体验会觉得被骗。建议找数分取门铃线单设备日均通知数与人形事件占比。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= 数据 ================= */
+const NOTIF_L = [
+  {i:"🚗",t:"Vehicle · Front Door"},
+  {i:"🍃",t:"Motion · Front Door"},
+  {i:"🚶",t:"Person · Front Door"},
+  {i:"🚗",t:"Vehicle · Front Door"},
+  {i:"🍃",t:"Motion · Front Door"},
+  {i:"🚗",t:"Vehicle · Front Door"}
+];
+const NOTIF_R = [
+  {i:"🚗",t:"Vehicle · Front Door", keep:0},
+  {i:"🍃",t:"Motion · Front Door",  keep:0},
+  {i:"🙂",t:"Alex at Front Door",   keep:1},
+  {i:"🚗",t:"Vehicle · Front Door", keep:0},
+  {i:"⚠",t:"Unknown at Front Door",keep:1},
+  {i:"🚗",t:"Vehicle · Front Door", keep:0}
+];
+
+/* 机型口径：V8S 自带存储，不能说 No Recording */
+const MODEL = {
+  std:{
+    b1l:"◻ Person only",
+    h1l:"BASIC",
+    h2l:"BASIC · 30 DAYS",
+    c2no:"No footage before Day 30",
+    c2bk:"⌾ Cloud keeps 30 days",
+    c2sub:"The insurance claim comes in March. Basic deleted February.",
+    c2take:"Claims, police reports and disputes all come long after the event."
+  },
+  v8s:{
+    b1l:"◻ Person only",
+    h1l:"BASIC",
+    h2l:"BASIC · ON DEVICE",
+    c2no:"Gone with the doorbell",
+    c2bk:"⌾ Saved on this doorbell only",
+    c2sub:"Your doorbell has storage. A stolen doorbell takes it with it.",
+    c2take:"Local storage covers the footage. It does not cover losing the device."
+  }
+};
+const SRC = {
+  demo:{nav:"Never miss who's there", cs1:"Basic tells you someone moved. Pro tells you it's your neighbor — before you get up."},
+  own :{nav:"Your Front Door, yesterday", cs1:"This is your 6:14 PM event from yesterday. Basic saw a person. Pro would have said Alex."}
+};
+
+/* ================= 初始化静态结构 ================= */
+(function(){
+  const bL=document.getElementById("c2_bL"), bR=document.getElementById("c2_bR");
+  const H=[7,4,11,6,3,9,5,12,4,8,6,10,5,3,9,7,4,11,6,8,5,9,3,7,10,4,8,6,11,5];
+  H.forEach((h,k)=>{
+    const gone = k < 18;                       /* 左：Day30 之前无素材（wall 在 62%） */
+    bL.insertAdjacentHTML("beforeend",`<i class="${gone?"gone":""}" style="height:${h*2.2}px"></i>`);
+    bR.insertAdjacentHTML("beforeend",`<i style="height:${h*2.2}px"></i>`);
+  });
+  const lL=document.getElementById("c3_lL"), lR=document.getElementById("c3_lR");
+  NOTIF_L.forEach((n,k)=>lL.insertAdjacentHTML("beforeend",
+    `<div class="nt" data-k="${k}"><span class="ni">${n.i}</span><span>${n.t}</span></div>`));
+  NOTIF_R.forEach((n,k)=>lR.insertAdjacentHTML("beforeend",
+    `<div class="nt${n.keep?" keep":""}" data-k="${k}" data-keep="${n.keep}"><span class="ni">${n.i}</span><span>${n.t}</span></div>`));
+})();
+
+/* ================= 状态 ================= */
+let curCard=0, phase=0, playing=true, model="std", src="demo";
+const $ = id=>document.getElementById(id);
+const st = (el,o)=>{ if(el) el.style.opacity=o; };
+
+function applyText(){
+  const M=MODEL[model], S=SRC[src];
+  $("b1l").textContent=M.b1l; $("h1l").textContent=M.h1l; $("h2l").textContent=M.h2l;
+  $("c2_noTxt").textContent=M.c2no; $("c2_bkL").textContent=M.c2bk;
+  $("c2sub").textContent=M.c2sub; $("c2take").textContent=M.c2take;
+  $("navT").textContent=S.nav;
+  document.querySelector('.card[data-k="0"] .cs').textContent=S.cs1;
+}
+
+function resetAll(){
+  ["c1_box","c1_ret","c1_chip","c1_pL","c1_pR","c2_rL","c2_rR","c3_fold","c3_more"].forEach(i=>st($(i),0));
+  $("c1_ret").style.transform="scale(1.5)";
+  $("c1_chip").style.transform="translateY(7px)";
+  $("c1_pL").style.transform="translateY(12px)";
+  $("c1_pR").style.transform="translateY(12px)";
+  $("c2_rL").style.transform="translateY(-5px)";
+  $("c2_rR").style.transform="translateY(-5px)";
+  $("c3_fold").style.opacity=0;
+  $("c1_gL").style.width="0"; $("c1_gR").style.width="0";
+  $("c2_sL").style.left="96%"; $("c2_sR").style.left="96%";
+  st($("c2_bkL"),1); st($("c2_bkR"),1);
+  $("c3_nL").textContent="0"; $("c3_nR").textContent="0";
+  document.querySelectorAll("#c3_lL .nt,#c3_lR .nt").forEach(e=>{
+    e.style.opacity=0; e.style.transform="translateY(-5px) scale(.96)";
+    e.classList.remove("dim","kill");
+  });
+}
+
+/* ---- 三张卡的逐帧绘制（phase 单位 100ms，周期 54 = 5.4s） ---- */
+function paint0(p){
+  if(p>=6){ st($("c1_box"),1); $("c1_box").style.opacity=1; }
+  if(p>=6){ st($("c1_ret"),1); $("c1_ret").style.transform="scale(1)"; }
+  if(p>=14){ st($("c1_chip"),1); $("c1_chip").style.transform="translateY(0)"; }
+  if(p>=22){ st($("c1_pL"),1); $("c1_pL").style.transform="translateY(0)";
+             st($("c1_pR"),1); $("c1_pR").style.transform="translateY(0)"; }
+  const g=Math.min(100, Math.max(0,(p-2))*2.4);
+  $("c1_gR").style.width=g+"%";
+  $("c1_gL").style.width="0%";          /* 左侧停帧：不播 */
+  if(p>=48){ resetAll(); }
+}
+function paint1(p){
+  if(p>=4)  $("c2_sL").style.left="62%";
+  if(p>=4)  $("c2_sR").style.left="62%";
+  if(p>=14) st($("c2_rL"),1), $("c2_rL").style.transform="translateY(0)";
+  if(p>=14) $("c2_sR").style.left="14%";
+  if(p>=24) st($("c2_rR"),1), $("c2_rR").style.transform="translateY(0)";
+  if(p>=48) resetAll();
+}
+function paint2(p){
+  const lL=[...document.querySelectorAll("#c3_lL .nt")];
+  const lR=[...document.querySelectorAll("#c3_lR .nt")];
+  lL.forEach((e,k)=>{ if(p>=4+k*3){ e.style.opacity=1; e.style.transform="translateY(0) scale(1)"; }});
+  lR.forEach((e,k)=>{ if(p>=4+k*3){ e.style.opacity=1; e.style.transform="translateY(0) scale(1)"; }});
+  /* 左计数 0→14 */
+  const nL=Math.min(14, Math.max(0, Math.round((p-3)*0.62)));
+  $("c3_nL").textContent=nL;
+  if(p>=22) st($("c3_more"),1);
+  /* 右侧：非重要项灰掉再消失，计数停在 2 */
+  if(p>=24) lR.forEach(e=>{ if(e.dataset.keep==="0") e.classList.add("dim"); });
+  if(p>=30) lR.forEach(e=>{ if(e.dataset.keep==="0") e.classList.add("kill"); });
+  if(p>=32) st($("c3_fold"),1);
+  const nR = p<24 ? Math.min(6,Math.max(0,Math.round((p-3)*0.28))) : 2;
+  $("c3_nR").textContent=nR;
+  if(p>=48) resetAll();
+}
+const PAINT=[paint0,paint1,paint2];
+
+setInterval(()=>{
+  if(!playing) return;
+  phase=(phase+1)%54;
+  if(phase===0) resetAll();
+  PAINT[curCard](phase);
+},100);
+
+/* ================= 横滑 ================= */
+const car=$("car"), dots=[...document.querySelectorAll("#dots i")];
+function syncCard(){
+  const w = car.querySelector(".card").offsetWidth + 9;
+  const k = Math.min(2, Math.max(0, Math.round(car.scrollLeft / w)));
+  if(k!==curCard){ curCard=k; phase=0; resetAll(); }
+  dots.forEach((d,i)=>d.classList.toggle("on", i===curCard));
+  $("hint").style.opacity = curCard===0 ? 1 : 0;
+}
+car.addEventListener("scroll", ()=>{ clearTimeout(car._t); car._t=setTimeout(syncCard,60); });
+dots.forEach((d,i)=>d.onclick=()=>{
+  const w = car.querySelector(".card").offsetWidth + 9;
+  car.scrollTo({left:i*w, behavior:"smooth"});
+});
+/* 桌面端鼠标拖拽 */
+let dn=false, sx=0, sl=0;
+car.addEventListener("mousedown",e=>{dn=true;sx=e.pageX;sl=car.scrollLeft;car.classList.add("drag");});
+window.addEventListener("mouseup",()=>{if(dn){dn=false;car.classList.remove("drag");
+  const w=car.querySelector(".card").offsetWidth+9;
+  car.scrollTo({left:Math.round(car.scrollLeft/w)*w, behavior:"smooth"});}});
+window.addEventListener("mousemove",e=>{if(dn){e.preventDefault();car.scrollLeft=sl-(e.pageX-sx);}});
+
+/* ================= 控制条 ================= */
+function seg(id,fn){
+  const e=$(id);
+  e.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    e.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); fn(b.dataset.v);
+  });
+}
+seg("sgModel",v=>{model=v;applyText();phase=0;resetAll();});
+seg("sgSrc",  v=>{src=v;applyText();});
+seg("sgPlay", v=>{playing=(v==="on"); if(!playing){/* 停在当前帧 */}});
+
+$("prM").onclick=()=>{$("prM").classList.add("sel");$("prA").classList.remove("sel");
+  $("fine").innerHTML="$6.99/mo after 30-day free trial.<br>Cancel anytime.";};
+$("prA").onclick=()=>{$("prA").classList.add("sel");$("prM").classList.remove("sel");
+  $("fine").innerHTML="$69.99/yr after 30-day free trial.<br>Cancel anytime.";};
+
+(function(){
+  const end=Date.now()+(47*3600+12*60+28)*1000, pad=n=>n<10?"0"+n:""+n;
+  function tick(){const d=Math.max(0,Math.floor((end-Date.now())/1000));
+    $("ch").textContent=pad(Math.floor(d/3600));
+    $("cm").textContent=pad(Math.floor(d%3600/60));
+    $("cs").textContent=pad(d%60);}
+  tick();setInterval(tick,1000);
+})();
+
+applyText(); resetAll(); syncCard();
+</script>
+</body>
+</html>
