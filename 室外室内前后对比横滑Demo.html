@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>室外 / 室内 · 前后对比动图横滑 Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+background:#eef1f5;color:#1a1f26;padding:26px 18px 60px;line-height:1.55}
+.wrap{max-width:1250px;margin:0 auto}
+h1{font-size:23px;font-weight:700;color:#1B5A9E;margin-bottom:5px}
+.sub{font-size:13px;color:#667;margin-bottom:12px}
+.warn{font-size:12px;color:#1B5A9E;background:#E9F1FA;border-radius:6px;padding:8px 12px;display:block;margin-bottom:16px}
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:9px 18px;border-radius:9px;background:#fff;border:1px solid #d8dde4;cursor:pointer;
+font-size:13.5px;font-weight:700;color:#4a535e}
+.tab.on{background:#1B5A9E;color:#fff;border-color:#1B5A9E}
+.tab em{font-style:normal;font-size:11px;opacity:.75;margin-left:5px}
+.ctrls{display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #e0e5ea;
+border-radius:10px;padding:11px 15px;margin-bottom:20px}
+.ctrls>div{display:flex;gap:8px;align-items:center}
+.ctrls span.lb{font-size:12.5px;color:#5a636e;font-weight:600}
+.seg{display:flex;border:1px solid #d3d9e0;border-radius:7px;overflow:hidden}
+.seg button{padding:6px 12px;font-size:12.5px;background:#fff;border:0;cursor:pointer;color:#4a535e;font-weight:600}
+.seg button+button{border-left:1px solid #d3d9e0}
+.seg button.on{background:#1B5A9E;color:#fff}
+.main{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+
+/* ================= phone ================= */
+.ph{width:326px;background:#fff;border-radius:36px;border:9px solid #0d1319;overflow:hidden;
+box-shadow:0 14px 38px rgba(15,30,50,.22);flex:0 0 auto}
+.stat{display:flex;justify-content:space-between;padding:10px 17px 2px;font-size:12px;font-weight:700;color:#14212e}
+.nav{display:flex;align-items:center;padding:4px 15px 10px;color:#14212e}
+.nav .t{flex:1;text-align:center;font-size:15px;font-weight:800}
+.nav .x{font-size:17px;line-height:1;color:#98a0aa}
+.nav .sp{width:14px}
+
+.car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:9px;padding:0 16px 4px;
+scrollbar-width:none;cursor:grab}
+.car::-webkit-scrollbar{display:none}
+.car.drag{cursor:grabbing}
+.card{flex:0 0 254px;scroll-snap-align:start;background:#fff;border:1px solid #E6EAEF;border-radius:14px;
+padding:10px 10px 9px;user-select:none}
+.card .ct{font-size:13.5px;font-weight:900;color:#11181f;line-height:1.2;letter-spacing:-.2px}
+.card .cs{font-size:10px;color:#98a0aa;margin-top:2px;line-height:1.3;min-height:26px}
+.hdr{display:flex;margin-top:7px;font-size:9px;font-weight:900;letter-spacing:.3px}
+.hdr .hl{flex:1;text-align:center;color:#A8B2BC}
+.hdr .hr{flex:1;text-align:center;color:#1B5A9E}
+.hdr .hr b{color:#11181f}
+.hdr .hr.pm{color:#6B3FA0}.hdr .hr.pm b{color:#3D1F63}
+.split{display:flex;margin-top:4px;position:relative}
+.split .dv{position:absolute;left:50%;top:0;bottom:0;width:0;border-left:1.5px dashed #C6D3E2;z-index:5}
+.pane{flex:1;height:134px;border-radius:9px;overflow:hidden;position:relative;min-width:0}
+.pane.l{filter:saturate(.16) brightness(1.05);border-radius:9px 0 0 9px}
+.pane.r{border-radius:0 9px 9px 0}
+.bdg{position:absolute;top:5px;left:5px;z-index:6;font-size:7.5px;font-weight:900;
+padding:2px 5px;border-radius:5px;background:rgba(30,40,52,.62);color:#fff}
+.bdg.b{background:#2D7FF9}.bdg.p{background:#7B4FBE}
+.take{display:flex;align-items:center;gap:5px;margin-top:7px;font-size:10.5px;font-weight:800;color:#1B5A9E;line-height:1.3}
+.take i{font-style:normal;font-size:11px;flex:0 0 auto}
+.take.pm{color:#5C3392}
+
+/* ---------- 通用小组件 ---------- */
+.sky{position:absolute;inset:0}
+.sky.yard{background:linear-gradient(172deg,#A9C6E4 0%,#C2D8EC 44%,#87A583 45%,#6F8F72 100%)}
+.sky.room{background:linear-gradient(172deg,#E6DCCB 0%,#DBD0BC 52%,#B9A184 53%,#A48D71 100%)}
+.fig{position:absolute;width:30px;height:62px}
+.fig .h{position:absolute;left:50%;top:0;transform:translateX(-50%);width:17px;height:17px;border-radius:50%;background:#C99B72}
+.fig .bd{position:absolute;left:50%;top:15px;transform:translateX(-50%);width:27px;height:40px;
+border-radius:10px 10px 4px 4px;background:#B8453A}
+.fig.kid{height:48px}.fig.kid .bd{background:#3E77A8;height:30px}.fig.kid .h{width:15px;height:15px}
+.truck{position:absolute;width:44px;height:20px}
+.truck .cb{position:absolute;left:0;bottom:5px;width:16px;height:12px;border-radius:3px 1px 0 0;background:#9AA6B2}
+.truck .bx{position:absolute;left:15px;bottom:5px;width:29px;height:9px;background:#8996A3}
+.truck .w{position:absolute;bottom:0;width:7px;height:7px;border-radius:50%;background:#2A323B}
+.prog{position:absolute;bottom:4px;left:5px;right:5px;height:2.5px;border-radius:2px;background:rgba(255,255,255,.34);z-index:6}
+.prog i{display:block;height:100%;border-radius:2px;background:#fff;width:0}
+.dur{position:absolute;bottom:8px;right:6px;z-index:6;font-size:8px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+
+.det{position:absolute;z-index:7;border:1.5px solid #E8EDF2;border-radius:2px;opacity:0;transition:.25s;
+box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.det .dl{position:absolute;top:-13px;left:-1px;font-size:7.5px;font-weight:900;
+background:#E8EDF2;color:#3a424c;padding:1px 4px;border-radius:3px;white-space:nowrap}
+.ret{position:absolute;z-index:7;width:28px;height:32px;border-radius:50%;border:2px solid #3B9EFF;
+opacity:0;transform:scale(1.5);transition:.3s;box-shadow:0 0 0 3px rgba(59,158,255,.2),0 0 12px rgba(59,158,255,.45)}
+.chip{position:absolute;z-index:8;opacity:0;transform:translateY(7px);transition:.3s;
+background:#2D7FF9;color:#fff;font-size:9px;font-weight:900;padding:3px 7px;border-radius:12px;
+box-shadow:0 3px 9px rgba(20,70,140,.4);white-space:nowrap}
+.chip.gn{background:#1F8A50;box-shadow:0 3px 9px rgba(20,110,65,.4)}
+.chip.rd{background:#E8502E;box-shadow:0 3px 9px rgba(180,50,25,.4)}
+
+/* push 卡 */
+.lock{position:absolute;inset:0;background:linear-gradient(168deg,#39516C,#1C2A3B);padding:7px 6px}
+.lock .ck{text-align:center;color:#E3EAF2;font-size:15px;font-weight:300;letter-spacing:-.5px;line-height:1.1}
+.lock .cd2{text-align:center;color:#9DB0C4;font-size:7px;font-weight:700;margin-bottom:6px}
+.pu{background:rgba(246,249,252,.95);border-radius:8px;padding:4px 6px;opacity:0;
+transform:translateY(9px);transition:.3s;box-shadow:0 4px 12px rgba(10,20,35,.3)}
+.pu .pt{font-size:7px;font-weight:900;color:#8b939c;display:flex}
+.pu .pt u{margin-left:auto;font-weight:600;text-decoration:none;color:#a8b0b8}
+.pu .pb{font-size:8.5px;font-weight:800;color:#16202b;line-height:1.3;margin-top:1px;min-height:22px}
+.tapbar{position:absolute;left:6px;right:6px;bottom:7px;opacity:0;transition:.3s;
+border-radius:7px;padding:3px 6px;font-size:8px;font-weight:900;display:flex;align-items:center;gap:4px}
+.tapbar.no{background:#FDECE8;color:#B03A24;border:1px solid #F6CFC6}
+.tapbar.ok{background:#EAF3FF;color:#1B5A9E;border:1px solid #CBE0F8}
+.tapbar.pm{background:#F4EDFB;color:#5C3392;border:1px solid #E0D2F0}
+
+/* 时间轴 */
+.tl{position:absolute;inset:0;background:linear-gradient(178deg,#F4F7FA,#E8EEF4);padding:9px 7px}
+.tl .ttl{font-size:7.5px;font-weight:900;color:#8b939c;letter-spacing:.2px}
+.tl .track{position:absolute;left:7px;right:7px;top:54px;height:32px}
+.tl .track .ax{position:absolute;left:0;right:0;bottom:0;height:1.5px;background:#C6D0DA}
+.tl .bars{position:absolute;left:0;right:0;bottom:2px;height:28px;display:flex;align-items:flex-end;gap:1.5px}
+.tl .bars i{flex:1;background:#9DB8D4;border-radius:1px}
+.tl .bars i.gone{background:repeating-linear-gradient(45deg,#DDE3E9 0 2px,#EFF2F5 2px 4px)}
+.tl .sc{position:absolute;top:-8px;bottom:-8px;width:2px;background:#2D7FF9;border-radius:2px;
+transition:left .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 7px rgba(45,127,249,.5)}
+.tl .sc:after{content:"";position:absolute;top:-4px;left:-3px;width:8px;height:8px;border-radius:50%;
+background:#2D7FF9;box-shadow:0 0 0 2px #fff}
+.tl .wall{position:absolute;top:-8px;bottom:-8px;width:0;border-left:1.5px dashed #E8502E}
+.tl .lbs{position:absolute;left:7px;right:7px;top:90px;display:flex;justify-content:space-between;
+font-size:7px;font-weight:800;color:#a8b0b8}
+.res{position:absolute;left:7px;right:7px;top:20px;opacity:0;transform:translateY(-5px);transition:.3s}
+.res .rb{border-radius:7px;padding:4px 6px;font-size:8px;font-weight:900;line-height:1.3;
+display:flex;align-items:center;gap:5px}
+.res .rb.no{background:#FDECE8;color:#B03A24;border:1px solid #F6CFC6}
+.res .rb.ok{background:#EAF3FF;color:#1B5A9E;border:1px solid #CBE0F8}
+.res .rb .th{width:20px;height:15px;border-radius:3px;flex:0 0 20px;background:linear-gradient(160deg,#A9C6E4,#6F8F72)}
+.bk{position:absolute;left:7px;right:7px;bottom:7px;transition:.3s;font-size:7.5px;font-weight:800;
+border-radius:6px;padding:3px 5px;line-height:1.25;color:#1B7A4F;background:#EAF6EF;border:1px solid #C9E7D6}
+.bk.gy{color:#98a0aa;background:#F1F3F6;border-color:#E1E5EA}
+
+/* 通知流 */
+.al{position:absolute;inset:0;background:linear-gradient(178deg,#2C3E55,#1A2634);padding:7px 6px}
+.al.d{background:linear-gradient(178deg,#20344C,#132030)}
+.al .cnt{display:flex;align-items:baseline;gap:3px;color:#fff;padding:0 2px 4px}
+.al .cnt b{font-size:17px;font-weight:900;letter-spacing:-.6px;line-height:1}
+.al .cnt s{text-decoration:none;font-size:7.5px;font-weight:700;color:#9DB0C4}
+.al .lst{display:flex;flex-direction:column;gap:3px}
+.nt{background:rgba(240,244,249,.94);border-radius:6px;padding:3px 5px;display:flex;align-items:center;gap:4px;
+font-size:7.5px;font-weight:800;color:#16202b;opacity:0;transform:translateY(-5px) scale(.96);transition:.22s;line-height:1.2}
+.nt .ni{font-size:9px;flex:0 0 auto}
+.nt.dim{opacity:.3!important;filter:grayscale(1)}
+.nt.kill{opacity:0!important;transform:translateY(-4px) scale(.9)!important}
+.nt.keep{background:#EAF3FF;box-shadow:0 0 0 1.5px #4A9EFF}
+.nt.alarm{background:#FFEDE8;box-shadow:0 0 0 1.5px #FF6B4A}
+.fold{background:rgba(255,255,255,.11);border:1px dashed rgba(255,255,255,.3);border-radius:6px;
+padding:3px 5px;font-size:7.5px;font-weight:800;color:#A9BCD0;opacity:0;transition:.3s;text-align:center}
+.more{font-size:7.5px;font-weight:800;color:#9DB0C4;text-align:center;padding-top:2px;opacity:0;transition:.3s}
+
+/* 事件列表 vs 简报 */
+.ls{position:absolute;inset:0;background:#F4F7FA;padding:7px 6px;overflow:hidden}
+.ls .lh{font-size:7.5px;font-weight:900;color:#8b939c;padding-bottom:4px;display:flex}
+.ls .lh u{margin-left:auto;text-decoration:none;color:#2D7FF9}
+.roll{position:relative;transition:transform .1s linear}
+.ci{display:flex;gap:4px;align-items:center;background:#fff;border:1px solid #E6EAEF;border-radius:5px;
+padding:2px 4px;margin-bottom:3px;font-size:7px;font-weight:700;color:#5b636c}
+.ci .tb{width:18px;height:13px;border-radius:2px;flex:0 0 18px;background:linear-gradient(160deg,#A9C6E4,#6F8F72)}
+.rc{position:absolute;inset:0;background:linear-gradient(172deg,#F3EEFB,#EAE2F7);padding:8px 7px}
+.rc .rh{font-size:7.5px;font-weight:900;color:#6B3FA0;letter-spacing:.2px;padding-bottom:5px}
+.rl{display:flex;gap:4px;font-size:8px;font-weight:700;color:#3D2A55;line-height:1.3;margin-bottom:4px;
+opacity:0;transform:translateX(-5px);transition:.28s}
+.rl i{font-style:normal;flex:0 0 auto}
+.rcf{position:absolute;left:7px;right:7px;bottom:7px;background:#fff;border:1px solid #E0D2F0;border-radius:6px;
+padding:3px 5px;font-size:7.5px;font-weight:900;color:#5C3392;text-align:center;opacity:0;transition:.3s}
+
+/* 检索 */
+.sr{position:absolute;inset:0;background:#F4F7FA;padding:7px 6px}
+.sr .fc{display:flex;gap:2px;padding-bottom:4px}
+.sr .fc s{text-decoration:none;font-size:6.5px;font-weight:900;background:#E7EDF3;color:#8b939c;
+padding:2px 4px;border-radius:4px}
+.sr .fc s.hot{background:#D3E3F5;color:#2B6CB8}
+.sr .pg{position:absolute;left:6px;right:6px;bottom:22px;font-size:7.5px;font-weight:900;color:#8b939c;
+text-align:center;background:rgba(244,247,250,.92);padding:2px 0;z-index:3}
+.sr .nf{position:absolute;left:6px;right:6px;bottom:6px;font-size:7.5px;font-weight:900;text-align:center;
+color:#B03A24;background:#FDECE8;border:1px solid #F6CFC6;border-radius:6px;padding:3px 4px;opacity:0;transition:.3s}
+.sq{position:absolute;inset:0;background:linear-gradient(172deg,#F3EEFB,#EAE2F7);padding:8px 7px}
+.sq .box2{background:#fff;border:1.5px solid #C9B0E8;border-radius:14px;padding:3px 7px;font-size:8px;
+font-weight:800;color:#3D2A55;display:flex;align-items:center;gap:4px;min-height:19px}
+.sq .box2 .cur{width:1px;height:9px;background:#7B4FBE;animation:bl .8s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.sq .rr{display:flex;gap:4px;align-items:center;background:#fff;border:1px solid #E0D2F0;border-radius:6px;
+padding:2px 4px;margin-top:4px;font-size:7px;font-weight:800;color:#3D2A55;opacity:0;transform:translateY(5px);transition:.28s}
+.sq .rr .tb{width:18px;height:13px;border-radius:2px;flex:0 0 18px;background:linear-gradient(160deg,#2C3E55,#5A6B7E)}
+
+/* 烟感 */
+.sm{position:absolute;inset:0;background:linear-gradient(172deg,#E6DCCB,#C9BCA5);padding:7px 6px}
+.sm .ceil{position:absolute;left:0;right:0;top:0;height:16px;background:#D8CDB8;border-bottom:1.5px solid #B9A98F}
+.sm .alm{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:20px;height:9px;
+border-radius:0 0 9px 9px;background:#EFEAE0;border:1px solid #C4B79F}
+.sm .alm:after{content:"";position:absolute;left:50%;top:3px;transform:translateX(-50%);width:4px;height:4px;
+border-radius:50%;background:#E8502E}
+.sm .wv{position:absolute;left:50%;top:20px;transform:translateX(-50%);border:1.5px solid #E8502E;
+border-radius:50%;opacity:0}
+.sm .wv.on{animation:rip 1.4s ease-out infinite}
+@keyframes rip{0%{width:8px;height:8px;margin-left:-4px;opacity:.9}100%{width:70px;height:70px;margin-left:-35px;opacity:0}}
+.sm .clk{position:absolute;left:6px;right:6px;top:44px;text-align:center}
+.sm .clk b{font-size:17px;font-weight:900;color:#5A4A32;letter-spacing:-.6px;line-height:1}
+.sm .clk s{display:block;text-decoration:none;font-size:7px;font-weight:800;color:#8B7A5E;margin-top:1px}
+.sm .ph2{position:absolute;left:12px;right:12px;bottom:26px;height:34px;border-radius:6px;
+background:#2A323B;border:1.5px solid #1A2028;display:flex;align-items:center;justify-content:center;
+font-size:7px;font-weight:800;color:#5D6874;text-align:center;padding:3px}
+.sm .el{position:absolute;left:6px;right:6px;bottom:6px;border-radius:6px;padding:3px 5px;
+font-size:7.5px;font-weight:900;text-align:center;opacity:0;transition:.3s}
+.sm .el.no{background:#FDECE8;color:#B03A24;border:1px solid #F6CFC6}
+.sm .el.ok{background:#EAF3FF;color:#1B5A9E;border:1px solid #CBE0F8}
+.sm .act{position:absolute;left:6px;right:6px;bottom:26px;display:flex;gap:3px;opacity:0;transition:.3s}
+.sm .act s{flex:1;text-decoration:none;text-align:center;font-size:7px;font-weight:900;padding:3px 2px;
+border-radius:5px;background:#fff;border:1px solid #CBE0F8;color:#1B5A9E}
+.sm .act s.em{background:#E8502E;color:#fff;border-color:#E8502E}
+
+/* ---- dots / footer ---- */
+.dots{display:flex;justify-content:center;gap:5px;padding:9px 0 3px}
+.dots i{width:5px;height:5px;border-radius:3px;background:#D3D9E0;transition:.2s;cursor:pointer}
+.dots i.on{width:15px;background:#2D7FF9}
+.swipehint{text-align:center;font-size:9px;color:#b6bbc2;font-weight:700;letter-spacing:.3px;padding-bottom:2px;transition:.3s}
+.bd{padding:2px 18px 0}
+.copy{font-size:10.5px;color:#7c848d;line-height:1.45;text-align:center;padding:0 2px}
+.copy b{color:#3a424c}
+.cdw{display:flex;justify-content:center;align-items:center;gap:5px;margin-top:8px}
+.cdw .off{background:#FF3B30;color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:4px}
+.cdw .lbl{font-size:9.5px;color:#98a0aa;font-weight:600}
+.cdw b{background:#2A2F36;color:#fff;font-size:9.5px;font-weight:800;padding:1px 4px;border-radius:3px;
+font-variant-numeric:tabular-nums;min-width:19px;text-align:center;display:inline-block}
+.cdw i{font-style:normal;color:#2A2F36;font-weight:800;font-size:9px}
+.prices{display:flex;gap:10px;margin-top:9px}
+.pr{flex:1;border:1.5px solid #DFE4E9;border-radius:11px;padding:8px 6px 7px;position:relative;
+background:#fff;text-align:center;cursor:pointer}
+.pr.sel{border-color:#2D7FF9;border-width:2px;background:#F4F9FF;padding:7.5px 5.5px 6.5px}
+.pr.sel.pm{border-color:#8256BE;background:#F8F4FD}
+.pr .nm{font-size:11.5px;color:#5b636c;font-weight:700}
+.pr .v{font-size:18px;font-weight:900;color:#11181f;letter-spacing:-.5px;line-height:1.2}
+.pr .v u{font-size:10px;font-weight:600;color:#8b939c;text-decoration:none}
+.pr .v s{display:block;font-size:10px;color:#b6bbc2;font-weight:500}
+.pr .bg{position:absolute;top:-8px;right:5px;background:#FF3B30;color:#fff;font-size:9px;
+font-weight:900;padding:1px 5px;border-radius:5px;font-style:italic}
+.foot{padding:11px 18px 14px}
+.cta{color:#fff;text-align:center;padding:13px;border-radius:26px;font-size:15px;font-weight:800;cursor:pointer;
+background:linear-gradient(96deg,#2F86D8,#1F55BF);box-shadow:0 5px 14px rgba(35,95,180,.32)}
+.cta.pm{background:linear-gradient(96deg,#8256BE,#5C3392);box-shadow:0 5px 14px rgba(95,50,150,.3)}
+.fine{display:flex;font-size:9.5px;color:#a6acb3;line-height:1.45;margin-top:8px}
+.fine u{margin-left:auto;color:#5b636c;flex:0 0 auto;padding-left:10px}
+
+/* ================= panel ================= */
+.panel{flex:1;min-width:382px}
+.pc{background:#fff;border:1px solid #e2e7ec;border-radius:11px;padding:13px 16px;margin-bottom:11px}
+.pc h4{font-size:13.5px;font-weight:800;color:#16202b;margin-bottom:8px}
+table.t{width:100%;border-collapse:collapse;font-size:11.5px}
+table.t th{background:#F1F4F8;color:#4a535e;font-weight:700;padding:6px 9px;text-align:left;border:1px solid #E4E8ED}
+table.t td{padding:6px 9px;border:1px solid #E9ECF0;color:#3a424c;vertical-align:top}
+table.t td.u{font-weight:800;color:#16202b}
+table.t td.c{text-align:center;white-space:nowrap}
+.chp{display:inline-block;font-size:9px;font-weight:900;padding:1px 5px;border-radius:4px;background:#E9F1FA;color:#1B5A9E}
+.chp.pm{background:#F3EAF7;color:#6B3FA0}
+.why{font-size:11.5px;color:#6b737c;line-height:1.6;margin-top:8px}
+.why b{color:#1a2430}
+.tip{font-size:11.5px;color:#525a64;background:#fff;border-left:3px solid #1B5A9E;
+padding:11px 13px;border-radius:0 7px 7px 0;line-height:1.65;margin-bottom:11px}
+.tip b{color:#1a2430}
+.tip.rd{border-left-color:#C00000}
+.tip.am{border-left-color:#D98800;background:#FFFCF6}
+.tip.gn{border-left-color:#1F7A3D;background:#F7FCF9}
+.tip.pm{border-left-color:#6B3FA0;background:#FAF7FD}
+@media(max-width:850px){.panel{min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>室外 / 室内 · 前后对比动图 · 横滑四卡 Demo</h1>
+  <div class="sub">沿用门铃版的分屏模板：同一份输入，左侧褪色停帧、右侧满色演出结果 · 每线四卡，可横滑（鼠标可直接拖）</div>
+  <div class="warn">⚠ 动画自动循环，<b>只有当前卡在播</b>（切卡即重置）。室外档位见第 ① 条 —— 四张卡里只有云存是 Pro，另外三张是 Premium，这正好构成两段式阶梯。价格为占位。</div>
+
+  <div class="tabs">
+    <div class="tab on" data-l="out">室外线<em>C9C / C9E2D / C9L</em></div>
+    <div class="tab" data-l="in">室内线<em>C2E</em></div>
+  </div>
+
+  <div class="ctrls">
+    <div><span class="lb">卡片顺序</span>
+      <div class="seg" id="sgOrder">
+        <button data-v="mine" class="on">按你列的顺序</button>
+        <button data-v="rec">推荐顺序</button>
+      </div>
+    </div>
+    <div><span class="lb">室内机型</span>
+      <div class="seg" id="sgModel">
+        <button data-v="c2e" class="on">C2E（含烟感）</button>
+        <button data-v="oth">其他室内机型（无烟感）</button>
+      </div>
+    </div>
+    <div><span class="lb">动画</span>
+      <div class="seg" id="sgPlay">
+        <button data-v="on" class="on">播放</button>
+        <button data-v="off">暂停看单帧</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="ph">
+      <div class="stat">14:12<span>▮▮▮ ⌁ ▰</span></div>
+      <div class="nav"><span class="sp"></span><span class="t" id="navT"></span><span class="x">✕</span></div>
+      <div class="car" id="car"></div>
+      <div class="dots" id="dots"></div>
+      <div class="swipehint" id="hint"></div>
+      <div class="bd">
+        <div class="copy" id="copy"></div>
+        <div class="cdw"><span class="off">35% OFF</span><span class="lbl">ends in</span>
+          <b id="ch">47</b><i>:</i><b id="cm">12</b><i>:</i><b id="cs">28</b></div>
+        <div class="prices">
+          <div class="pr" id="prM"><div class="nm">Monthly</div><div class="v" id="pvM"></div></div>
+          <div class="pr sel" id="prA"><div class="bg" id="pbA"></div><div class="nm">Annual</div><div class="v" id="pvA"></div></div>
+        </div>
+      </div>
+      <div class="foot">
+        <div class="cta" id="cta"></div>
+        <div class="fine"><span id="fine"></span><u>Cloud Storage Service</u></div>
+      </div>
+    </div>
+
+    <!-- ============ PANEL ============ -->
+    <div class="panel">
+      <div class="pc">
+        <h4 id="pnH"></h4>
+        <table class="t">
+          <tr><th style="width:13%">卡</th><th style="width:23%">同一份输入</th><th>左（Basic）→ 右的动作</th><th style="width:12%">档位</th></tr>
+          <tbody id="pnRows"></tbody>
+        </table>
+        <div class="why" id="pnWhy"></div>
+      </div>
+      <div id="pnTips"></div>
+
+      <div class="pc">
+        <h4>三条线的卡片结构对比（同一套模板能复用到什么程度）</h4>
+        <table class="t">
+          <tr><th style="width:14%">线</th><th class="c" style="width:11%">卡数</th><th>卡片骨架</th><th style="width:19%">这条线独有的问题</th></tr>
+          <tr><td class="u">门铃</td><td class="c">3</td><td>人脸 · 云存 · 通知降噪 —— <b>全部是同一能力变强</b>，没有纯新增</td><td>Pro 价低于 Basic，档位倒挂</td></tr>
+          <tr><td class="u">室外</td><td class="c">4</td><td>云存（Pro）+ 三张 AI 卡（Premium）—— <b>天然分两段</b></td><td>四张卡跨两个档位，CTA 指向哪一档要拍</td></tr>
+          <tr><td class="u">室内</td><td class="c">4 或 3</td><td>人脸 · 云存 · 通知降噪 + 烟感 —— <b>前三张与门铃同骨架</b>，第四张是纯新增</td><td>烟感仅 C2E，卡片数随机型变</td></tr>
+        </table>
+        <div class="why"><b>结论：前三张卡（人脸 / 云存 / 通知）在门铃与室内之间可以直接复用同一套组件，只换文案与场景底图。</b>室外的三张 AI 卡是全新组件。所以研发排期上建议：<b>先做「人脸 / 云存 / 通知」三个通用组件（门铃 + 室内共用，覆盖两条线）</b>，室外的 AI 卡放第二批 —— 同样的开发量能覆盖更多设备。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   场景生成器：每个场景返回 {l, r} 两段 HTML，元素用 data-r 标记角色
+   ================================================================ */
+const S = {};
+
+/* ---- 时间轴（云存） ---- */
+S.timeline = o => ({
+  l:`<div class="tl">
+      <div class="ttl">SCRUB BACK · 30-DAY LIMIT</div>
+      <div class="res" data-r="rL"><div class="rb no"><span>🚫</span><span>${o.noTxt}</span></div></div>
+      <div class="track"><span class="ax"></span><div class="bars" data-r="bL"></div>
+        <span class="wall" style="left:66%"></span><span class="sc" data-r="sL" style="left:96%"></span></div>
+      <div class="lbs"><span>${o.far}</span><span>Day 30</span><span>Today</span></div>
+      <div class="bk gy">${o.bkL}</div></div>`,
+  r:`<div class="tl">
+      <div class="ttl" style="color:#1B5A9E">SCRUB BACK · ${o.days} DAYS</div>
+      <div class="res" data-r="rR"><div class="rb ok"><span class="th"></span><span>${o.found}</span></div></div>
+      <div class="track"><span class="ax"></span><div class="bars" data-r="bR"></div>
+        <span class="sc" data-r="sR" style="left:96%"></span></div>
+      <div class="lbs"><span>${o.far}</span><span>Day 30</span><span>Today</span></div>
+      <div class="bk">${o.bkR}</div></div>`,
+  init(c){
+    const H=[6,10,4,12,7,3,9,5,11,4,8,6,10,5,3,9,7,4,11,6,8,5,9,3,7,10,4,8,6,11];
+    const bL=c.querySelector('[data-r=bL]'), bR=c.querySelector('[data-r=bR]');
+    H.forEach((h,k)=>{
+      bL.insertAdjacentHTML("beforeend",`<i class="${k<20?"gone":""}" style="height:${h*2}px"></i>`);
+      bR.insertAdjacentHTML("beforeend",`<i style="height:${h*2}px"></i>`);
+    });
+  },
+  reset(c){
+    c.querySelector('[data-r=sL]').style.left="96%"; c.querySelector('[data-r=sR]').style.left="96%";
+    ["rL","rR"].forEach(k=>{const e=c.querySelector(`[data-r=${k}]`);e.style.opacity=0;e.style.transform="translateY(-5px)";});
+  },
+  paint(c,p){
+    if(p>=4){ c.querySelector('[data-r=sL]').style.left="66%"; c.querySelector('[data-r=sR]').style.left="66%"; }
+    if(p>=15){ const e=c.querySelector('[data-r=rL]'); e.style.opacity=1; e.style.transform="translateY(0)";
+               c.querySelector('[data-r=sR]').style.left="11%"; }
+    if(p>=26){ const e=c.querySelector('[data-r=rR]'); e.style.opacity=1; e.style.transform="translateY(0)"; }
+  }
+});
+
+/* ---- 描述性通知（视频理解） ---- */
+S.desc = o => ({
+  l:`<div class="lock"><div class="ck">2:41</div><div class="cd2">Tuesday, August 11</div>
+      <div class="pu" data-r="pL"><div class="pt"><span>AOSU</span><u>now</u></div>
+        <div class="pb">${o.plain}</div></div>
+      <div class="tapbar no" data-r="tL">👆 3 taps to find out what it was</div></div>`,
+  r:`<div class="lock" style="background:linear-gradient(168deg,#3B3055,#221B33)">
+      <div class="ck">2:41</div><div class="cd2">Tuesday, August 11</div>
+      <div class="pu" data-r="pR"><div class="pt"><span>AOSU</span><u>now</u></div>
+        <div class="pb" data-r="tw"></div></div>
+      <div class="tapbar pm" data-r="tR">✓ 0 taps. You already know.</div></div>`,
+  reset(c){
+    ["pL","pR","tL","tR"].forEach(k=>{const e=c.querySelector(`[data-r=${k}]`);e.style.opacity=0;});
+    c.querySelector('[data-r=pL]').style.transform="translateY(9px)";
+    c.querySelector('[data-r=pR]').style.transform="translateY(9px)";
+    c.querySelector('[data-r=tw]').textContent="";
+  },
+  paint(c,p){
+    if(p>=4){const e=c.querySelector('[data-r=pL]');e.style.opacity=1;e.style.transform="translateY(0)";}
+    if(p>=4){const e=c.querySelector('[data-r=pR]');e.style.opacity=1;e.style.transform="translateY(0)";}
+    if(p>=6){ const n=Math.min(o.rich.length, Math.round((p-6)*3.4));
+              c.querySelector('[data-r=tw]').textContent=o.rich.slice(0,n); }
+    if(p>=32){ c.querySelector('[data-r=tL]').style.opacity=1; c.querySelector('[data-r=tR]').style.opacity=1; }
+  }
+});
+
+/* ---- AI Summary（安防管家） ---- */
+S.recap = o => ({
+  l:`<div class="ls"><div class="lh"><span data-r="cn">0 clips</span><u>Events</u></div>
+      <div class="roll" data-r="roll"></div></div>`,
+  r:`<div class="rc"><div class="rh">DAILY RECAP · YESTERDAY</div>
+      ${o.lines.map((t,k)=>`<div class="rl" data-r="rl${k}"><i>${t[0]}</i><span>${t[1]}</span></div>`).join("")}
+      <div class="rcf" data-r="rcf">${o.foot}</div></div>`,
+  init(c){
+    const r=c.querySelector('[data-r=roll]');
+    for(let i=0;i<22;i++) r.insertAdjacentHTML("beforeend",
+      `<div class="ci"><span class="tb"></span><span>${o.clip} · ${(i%12)+1}:0${i%6} ${i%2?"PM":"AM"}</span></div>`);
+  },
+  reset(c){
+    c.querySelector('[data-r=roll]').style.transform="translateY(0)";
+    c.querySelector('[data-r=cn]').textContent="0 clips";
+    o.lines.forEach((_,k)=>{const e=c.querySelector(`[data-r=rl${k}]`);e.style.opacity=0;e.style.transform="translateX(-5px)";});
+    c.querySelector('[data-r=rcf]').style.opacity=0;
+  },
+  paint(c,p){
+    c.querySelector('[data-r=roll]').style.transform="translateY(-"+Math.max(0,(p-2)*5.4)+"px)";
+    c.querySelector('[data-r=cn]').textContent=Math.min(o.n,Math.max(0,Math.round((p-2)*(o.n/34))))+" clips";
+    o.lines.forEach((_,k)=>{ if(p>=7+k*5){const e=c.querySelector(`[data-r=rl${k}]`);
+      e.style.opacity=1;e.style.transform="translateX(0)";} });
+    if(p>=7+o.lines.length*5+2) c.querySelector('[data-r=rcf]').style.opacity=1;
+  }
+});
+
+/* ---- AI 检索 ---- */
+S.search = o => ({
+  l:`<div class="sr"><div class="fc"><s data-r="f0">Person</s><s data-r="f1">Vehicle</s><s data-r="f2">Animal</s></div>
+      <div class="roll" data-r="roll"></div>
+      <div class="pg" data-r="pg">Page 1 of 26</div>
+      <div class="nf" data-r="nf">Still scrolling. No way to search.</div></div>`,
+  r:`<div class="sq"><div class="box2"><span>🔍</span><span data-r="q"></span><span class="cur"></span></div>
+      ${[0,1,2].map(k=>`<div class="rr" data-r="r${k}"><span class="tb"></span><span>${o.hits[k]}</span></div>`).join("")}</div>`,
+  init(c){
+    const r=c.querySelector('[data-r=roll]');
+    for(let i=0;i<16;i++) r.insertAdjacentHTML("beforeend",
+      `<div class="ci"><span class="tb"></span><span>${o.clip} · ${(i%12)+1}:1${i%6} ${i%2?"PM":"AM"}</span></div>`);
+  },
+  reset(c){
+    c.querySelector('[data-r=roll]').style.transform="translateY(0)";
+    c.querySelector('[data-r=pg]').textContent="Page 1 of 26";
+    c.querySelector('[data-r=nf]').style.opacity=0;
+    c.querySelector('[data-r=q]').textContent="";
+    [0,1,2].forEach(k=>{const e=c.querySelector(`[data-r=r${k}]`);e.style.opacity=0;e.style.transform="translateY(5px)";});
+    [0,1,2].forEach(k=>c.querySelector(`[data-r=f${k}]`).classList.remove("hot"));
+  },
+  paint(c,p){
+    c.querySelector('[data-r=roll]').style.transform="translateY(-"+Math.max(0,(p-2)*3.6)+"px)";
+    c.querySelector('[data-r=pg]').textContent="Page "+Math.min(7,1+Math.floor(Math.max(0,p-2)/5))+" of 26";
+    [0,1,2].forEach(k=>c.querySelector(`[data-r=f${k}]`).classList.toggle("hot", Math.floor(p/4)%3===k));
+    if(p>=30) c.querySelector('[data-r=nf]').style.opacity=1;
+    const n=Math.min(o.q.length, Math.max(0,Math.round((p-3)*1.5)));
+    c.querySelector('[data-r=q]').textContent=o.q.slice(0,n);
+    [0,1,2].forEach(k=>{ if(p>=22+k*3){const e=c.querySelector(`[data-r=r${k}]`);
+      e.style.opacity=1;e.style.transform="translateY(0)";} });
+  }
+});
+
+/* ---- 人脸（室内） ---- */
+S.face = o => ({
+  l:`<div class="sky room"></div>
+     <span class="fig kid" style="right:16%;bottom:12%"><span class="h"></span><span class="bd"></span></span>
+     <span class="bdg">◻ Person only</span>
+     <div class="det" data-r="box" style="right:12%;bottom:9%;width:40px;height:60px"><span class="dl">PERSON</span></div>
+     <div class="pu" data-r="pL" style="position:absolute;left:5px;right:5px;bottom:9px">
+       <div class="pt"><span>AOSU</span><u>3:42 PM</u></div><div class="pb">Person detected · Living Room</div></div>
+     <div class="prog"><i></i></div><span class="dur">0:15</span>`,
+  r:`<div class="sky room"></div>
+     <span class="fig kid" style="right:16%;bottom:12%"><span class="h"></span><span class="bd"></span></span>
+     <span class="bdg b">🙂 Face matched</span>
+     <div class="ret" data-r="ret" style="right:19%;top:26%"></div>
+     <div class="chip gn" data-r="chip" style="right:7%;top:52%">Emma · Home</div>
+     <div class="pu" data-r="pR" style="position:absolute;left:5px;right:5px;bottom:9px">
+       <div class="pt"><span>AOSU</span><u>3:42 PM</u></div>
+       <div class="pb" data-r="log">Emma got home · 3:42 PM</div></div>
+     <div class="prog"><i data-r="g"></i></div><span class="dur">0:15</span>`,
+  reset(c){
+    ["box","ret","chip","pL","pR"].forEach(k=>c.querySelector(`[data-r=${k}]`).style.opacity=0);
+    c.querySelector('[data-r=ret]').style.transform="scale(1.5)";
+    c.querySelector('[data-r=chip]').style.transform="translateY(7px)";
+    c.querySelector('[data-r=pL]').style.transform="translateY(12px)";
+    c.querySelector('[data-r=pR]').style.transform="translateY(12px)";
+    c.querySelector('[data-r=g]').style.width="0";
+    c.querySelector('[data-r=log]').textContent="Emma got home · 3:42 PM";
+  },
+  paint(c,p){
+    if(p>=6){ c.querySelector('[data-r=box]').style.opacity=1;
+              const r=c.querySelector('[data-r=ret]'); r.style.opacity=1; r.style.transform="scale(1)"; }
+    if(p>=14){ const e=c.querySelector('[data-r=chip]'); e.style.opacity=1; e.style.transform="translateY(0)"; }
+    if(p>=22){ ["pL","pR"].forEach(k=>{const e=c.querySelector(`[data-r=${k}]`);
+               e.style.opacity=1;e.style.transform="translateY(0)";}); }
+    if(p>=36) c.querySelector('[data-r=log]').textContent="Emma 3:42 PM · Sofia 4:05 PM";
+    c.querySelector('[data-r=g]').style.width=Math.min(100,Math.max(0,(p-2))*2.4)+"%";
+  }
+});
+
+/* ---- 通知降噪 ---- */
+S.alerts = o => ({
+  l:`<div class="al"><div class="cnt"><b data-r="nL">0</b><s>${o.unit}</s></div>
+      <div class="lst" data-r="lL"></div><div class="more" data-r="more">+${o.total-6} more</div></div>`,
+  r:`<div class="al d"><div class="cnt"><b data-r="nR">0</b><s>${o.unit}</s></div>
+      <div class="lst" data-r="lR"></div><div class="fold" data-r="fold">${o.total-o.keep} filtered out</div></div>`,
+  init(c){
+    const lL=c.querySelector('[data-r=lL]'), lR=c.querySelector('[data-r=lR]');
+    o.left.forEach(n=>lL.insertAdjacentHTML("beforeend",
+      `<div class="nt"><span class="ni">${n[0]}</span><span>${n[1]}</span></div>`));
+    o.right.forEach(n=>lR.insertAdjacentHTML("beforeend",
+      `<div class="nt${n[2]?(n[3]?" alarm":" keep"):""}" data-keep="${n[2]?1:0}">
+        <span class="ni">${n[0]}</span><span>${n[1]}</span></div>`));
+  },
+  reset(c){
+    c.querySelector('[data-r=nL]').textContent="0"; c.querySelector('[data-r=nR]').textContent="0";
+    c.querySelector('[data-r=more]').style.opacity=0; c.querySelector('[data-r=fold]').style.opacity=0;
+    c.querySelectorAll(".nt").forEach(e=>{e.style.opacity=0;e.style.transform="translateY(-5px) scale(.96)";
+      e.classList.remove("dim","kill");});
+  },
+  paint(c,p){
+    const A=[...c.querySelectorAll('[data-r=lL] .nt')], B=[...c.querySelectorAll('[data-r=lR] .nt')];
+    A.forEach((e,k)=>{if(p>=4+k*3){e.style.opacity=1;e.style.transform="translateY(0) scale(1)";}});
+    B.forEach((e,k)=>{if(p>=4+k*3){e.style.opacity=1;e.style.transform="translateY(0) scale(1)";}});
+    c.querySelector('[data-r=nL]').textContent=Math.min(o.total,Math.max(0,Math.round((p-3)*(o.total/22))));
+    if(p>=22) c.querySelector('[data-r=more]').style.opacity=1;
+    if(p>=24) B.forEach(e=>{if(e.dataset.keep==="0")e.classList.add("dim");});
+    if(p>=30) B.forEach(e=>{if(e.dataset.keep==="0")e.classList.add("kill");});
+    if(p>=32) c.querySelector('[data-r=fold]').style.opacity=1;
+    c.querySelector('[data-r=nR]').textContent = p<24
+      ? Math.min(6,Math.max(0,Math.round((p-3)*0.28))) : o.keep;
+  }
+});
+
+/* ---- 烟感 ---- */
+S.smoke = () => ({
+  l:`<div class="sm"><span class="ceil"></span><span class="alm"></span>
+      <span class="wv on"></span>
+      <div class="clk"><b data-r="ck">2:14</b><s>PM · alarm sounding</s></div>
+      <div class="ph2">Your phone<br>· nothing ·</div>
+      <div class="el no" data-r="el">17 min. Still nobody knows.</div></div>`,
+  r:`<div class="sm" style="background:linear-gradient(172deg,#E6DCCB,#C9BCA5)">
+      <span class="ceil"></span><span class="alm"></span><span class="wv on"></span>
+      <div class="clk"><b>2:14</b><s>PM · alarm sounding</s></div>
+      <div class="pu" data-r="pu" style="position:absolute;left:6px;right:6px;top:70px">
+        <div class="pt"><span>AOSU</span><u>2:14 PM</u></div>
+        <div class="pb">🔥 Smoke alarm sounding at Home</div></div>
+      <div class="act" data-r="act"><s class="em">Call 911</s><s>Live view</s></div>
+      <div class="el ok" data-r="el2">Alerted in 4 seconds.</div></div>`,
+  reset(c){
+    c.querySelector('[data-r=ck]').textContent="2:14";
+    const pu=c.querySelector('[data-r=pu]'); pu.style.opacity=0; pu.style.transform="translateY(9px)";
+    c.querySelector('[data-r=act]').style.opacity=0;
+    c.querySelector('[data-r=el]').style.opacity=0; c.querySelector('[data-r=el2]').style.opacity=0;
+  },
+  paint(c,p){
+    const m=14+Math.floor(Math.max(0,p-4)*0.42);
+    c.querySelector('[data-r=ck]').textContent="2:"+(m<10?"0":"")+m;
+    if(p>=6){const pu=c.querySelector('[data-r=pu]');pu.style.opacity=1;pu.style.transform="translateY(0)";}
+    if(p>=14) c.querySelector('[data-r=act]').style.opacity=1;
+    if(p>=20) c.querySelector('[data-r=el2]').style.opacity=1;
+    if(p>=34) c.querySelector('[data-r=el]').style.opacity=1;
+  }
+});
+
+/* ================================================================
+   卡片定义
+   ================================================================ */
+const OUT = {
+  cloud:{ id:"cloud", ct:"Still there next winter.", tier:"PRO",
+    cs:"The claim adjuster asks for December footage. It's now August.",
+    hl:"BASIC · 30 DAYS", hr:"WITH <b>PRO · 365 DAYS</b>",
+    take:["🗄","Outdoor has the most events and the longest look-back window."],
+    sc:S.timeline({days:"365", far:"Day 365", noTxt:"No footage before Day 30",
+      bkL:"⌾ Cloud keeps 30 days", bkR:"☁ A full year, incl. last winter",
+      found:"Found · Dec 18, 11:42 PM"}),
+    row:["同一条时间轴","左：游标往回拖，撞在 Day 30 的红墙 →「No footage before Day 30」<br>右：一路拖到 Day 347，弹出去年 12 月那一条","Pro"] },
+
+  desc:{ id:"desc", ct:"Read it. Don't open it.", tier:"PREMIUM",
+    cs:"Basic says something moved. Premium says what happened, in a sentence.",
+    hl:"BASIC", hr:"WITH <b>PREMIUM</b>", pm:1,
+    take:["💬","Most alerts get opened just to find out they didn't matter."],
+    sc:S.desc({plain:"Motion detected · Driveway",
+      rich:"A person in a red jacket walked up the driveway, left a box by the gate and drove off."}),
+    row:["同一条推送位","左：「Motion detected · Driveway」，要点进 App 才知道是什么<br>右：<b>逐字打出完整描述</b>，底部对比「3 taps」vs「0 taps」","Premium"] },
+
+  recap:{ id:"recap", ct:"You never walk out there.", tier:"PREMIUM",
+    cs:"A solar cam goes where there's no wiring — and no reason to walk by. The recap is the only way you'd know.",
+    hl:"BASIC", hr:"WITH <b>PREMIUM</b>", pm:1,
+    take:["📋","47 clips you'll never scroll, or 4 lines you'll actually read."],
+    sc:S.recap({n:47, clip:"Motion · Back fence",
+      lines:[["📦","3 deliveries, all left at the gate"],["🚶","1 unknown person, 11:40 PM"],
+             ["🦌","2 animals overnight, no entry"],["✓","Nothing else out of the ordinary"]],
+      foot:"47 clips → 1 recap"}),
+    row:["同一天的 47 条事件","左：事件列表<b>飞速滚动</b>，计数爬到 47，永远刷不完<br>右：四行简报<b>逐行拼出</b>，底部「47 clips → 1 recap」","Premium"] },
+
+  search:{ id:"search", ct:"Type it. Find it.", tier:"PREMIUM",
+    cs:"The police report needs the silver truck from Tuesday night. Basic gives you 26 pages of clips.",
+    hl:"BASIC", hr:"WITH <b>PREMIUM</b>", pm:1,
+    take:["🔍","Claims and police reports need one specific clip, not a category."],
+    sc:S.search({clip:"Vehicle · Driveway", q:"silver truck at night",
+      hits:["Tue 11:42 PM · Driveway","Wed 1:08 AM · Driveway","Fri 10:57 PM · Side yard"]}),
+    row:["同一批录像","左：只能按 Person / Vehicle / Animal 翻页，「Page 7 of 26」还没找到<br>右：<b>打字检索</b>「silver truck at night」，三条结果带时间戳直接弹出","Premium"] }
+};
+
+const IN = {
+  face:{ id:"face", ct:"Emma's home.", tier:"PRO",
+    cs:"3:42 PM. Basic says a person moved. Pro says your daughter walked in.",
+    hl:"BASIC", hr:"WITH <b>PRO</b>",
+    take:["🙂","Kids home from school, the nanny's hours, or someone who shouldn't be there."],
+    sc:S.face({}),
+    row:["同一次进门","左：灰框 PERSON，push「Person detected · Living Room」<br>右：人脸锁定 + 绿色胶囊「Emma · Home」，push 变成「<b>Emma got home · 3:42 PM</b>」，随后展开成到家记录","Pro"] },
+
+  cloud:{ id:"cloud", ct:"Unplugging it doesn't erase it.", tier:"PRO",
+    cs:"An indoor camera's failure mode isn't theft — it's someone covering it or pulling the plug.",
+    hl:"BASIC · 30 DAYS", hr:"WITH <b>PRO · 180 DAYS</b>",
+    take:["🗄","Indoor models carry no local storage. The cloud is the only copy."],
+    sc:S.timeline({days:"180", far:"Day 180", noTxt:"No footage before Day 30",
+      bkL:"⌾ Cloud keeps 30 days", bkR:"☁ Already uploaded — safe if unplugged",
+      found:"Found · Mar 12, 2:14 PM"}),
+    row:["同一条时间轴","左：撞在 Day 30 的红墙<br>右：拖到 Day 158 找到那一条；底部常驻「已上传，拔电也在」","Pro"] },
+
+  alerts:{ id:"alerts", ct:"Your family isn't an intruder.", tier:"PRO",
+    cs:"An indoor camera fires all day because your own family lives there. Pro keeps the two that aren't them.",
+    hl:"BASIC", hr:"WITH <b>PRO</b>",
+    take:["🔕","Indoor tolerance for false alerts is lower than at the front door."],
+    sc:S.alerts({total:31, keep:2, unit:"alerts while you were at work",
+      left:[["🚶","Person · Living Room"],["🐕","Pet · Kitchen"],["🚶","Person · Living Room"],
+            ["🍃","Motion · Hallway"],["🐕","Pet · Living Room"],["🚶","Person · Kitchen"]],
+      right:[["🚶","Person · Living Room",0],["🐕","Pet · Kitchen",0],["⚠","Unknown in Living Room",1],
+             ["🍃","Motion · Hallway",0],["🙂","Emma got home · 3:42 PM",1],["🐕","Pet · Living Room",0]]}),
+    row:["同一天上班时段的 31 条","左：卡片砸进来，计数跳到 <b>31</b>，溢出「+25 more」<br>右：自家人与宠物<b>灰掉折叠</b>成「29 filtered out」，只留陌生人 + 孩子到家 <b>2</b> 条","Pro"] },
+
+  smoke:{ id:"smoke", ct:"Nobody's home to hear it.", tier:"PRO",
+    cs:"US homes are required to have smoke alarms. Nothing requires anyone to be there when one goes off.",
+    hl:"BASIC · NOT AVAILABLE", hr:"WITH <b>PRO · C2E ONLY</b>",
+    take:["🔥","The one capability no other aosu model has."],
+    sc:S.smoke({}),
+    row:["同一声警报","左：警报在响，声波一圈圈扩散，手机是黑的，<b>时钟从 2:14 一路走到 2:31</b> →「17 min. Still nobody knows.」<br>右：同一声警报，<b>4 秒</b>内推送到手机 + Call 911 / Live view","Pro"] }
+};
+
+const LINES = {
+  out:{ name:"室外", nav:"See what happened", cta:"Upgrade to Premium", pm:1,
+    order:{mine:["cloud","desc","recap","search"], rec:["desc","search","recap","cloud"]},
+    cards:OUT,
+    copy:"365-day history, AI descriptions, daily recaps<br>and smart search. <b>Outdoor cams.</b>",
+    price:{m:"$16.99", y:"$159.99", yl:"$203.88"},
+    why:"<b>四张卡天然分成两段：云存是 Pro，另外三张 AI 是 Premium。</b>这不是缺陷，是室外线唯一能讲清三档阶梯的机会 —— <b>Pro = 存得更久，Premium = 看得懂</b>。但也带来一个必须拍的问题：CTA 只有一个，指向哪一档？Demo 默认指 Premium。",
+    tips:[
+      {c:"rd", h:"① 四张卡跨两个档位，CTA 指向哪一档必须先拍",
+       b:"云存 365 天是 Pro 权益，描述性通知 / AI Summary / AI 检索是 Premium。<b>用户划到云存卡看到「WITH PRO」，划到 AI 卡看到「WITH PREMIUM」，底部 CTA 却只有一个。</b><br>三种处理：<b>(a)</b> CTA 跟随当前卡变化（划到云存卡变 Upgrade to Pro）—— 最诚实，但用户会困惑到底买哪个；<b>(b)</b> CTA 固定指 Premium，云存卡标注「included in Premium too」—— 推荐，把 Pro 权益当作 Premium 的附赠讲；<b>(c)</b> 云存卡不进这个模块，四卡砍成三卡纯 Premium —— 最干净，但丢掉了对非 AI 机型最有效的卖点。<br><b>另外：现网商城页 Pro 与 Premium 都显示 1-Year。</b>若两档存储时长确实相同，第一张卡就不是 Basic→Pro 的对比，而是 Basic→两档共有，标签要改。这条先核实再定 (a)(b)(c)。"},
+      {c:"pm", h:"② 推荐顺序：把 Premium 卡放前面",
+       b:"你列的顺序是云存打头。但<b>第一卡决定用户对档位的第一印象</b> —— 云存卡挂着「WITH PRO」，等于先把用户锚在便宜的那一档。上方切「推荐顺序」会变成 <b>描述性通知 → AI 检索 → AI Summary → 云存</b>：<br>· 描述性通知打头，因为它<b>零学习成本</b>，一句话就能看懂差别，且 push 是每个用户每天都在经历的触点；<br>· AI 检索第二，因为它是四条里<b>最难被替代</b>的能力，也是报警回溯 / 保险理赔的刚需；<br>· 云存放最后作为兜底 —— 划到这里的用户已经被 AI 说服，云存变成「而且还存一年」的加分项。"},
+      {c:"am", h:"③ 描述性通知的文案长度是个真问题",
+       b:"Demo 里右侧那句话有 90 个字符。<b>iOS 锁屏推送在折叠态只显示约 2 行（≈ 80 字符），超出会被截断成「…」</b>，用户看到的是半句话，效果反而比「Motion detected」更差。<br>需要与研发确认：<b>描述生成时是否有长度上限</b>；若没有，建议按「主体 + 动作 + 位置」三段限长（如「A person in red left a box by the gate.」≈ 42 字符）。<b>Demo 里的长句是用来演示能力上限的，不能直接当上线文案。</b>"},
+      {c:"gn", h:"④ AI 检索的 Demo 用了「打字检索」，请确认交互形态",
+       b:"我按自然语言搜索框来画（输入「silver truck at night」直接出结果）。<b>如果现网实际是「预置标签 + 筛选器」而不是自由输入</b>，这张卡的右侧要改成点选标签的动效，说服力会弱一些 —— 因为「能打字问」本身就是卖点的一部分。<br>另外左侧「Page 7 of 26」是示意值，<b>实际要用室外线单设备的真实日均事件数换算</b>，否则会夸大。"}
+    ]},
+
+  in:{ name:"室内", nav:"Know who's inside", cta:"Upgrade to Pro",
+    order:{mine:["cloud","face","alerts","smoke"], rec:["face","alerts","smoke","cloud"]},
+    cards:IN,
+    copy:"180-day history, face recognition, quiet alerts<br>and smoke alarm detection. <b>Indoor cams.</b>",
+    price:{m:"$12.99", y:"$119.99", yl:"$155.88"},
+    why:"<b>前三张卡（人脸 / 云存 / 通知）与门铃版是同一套组件</b>，只换了场景底图与文案 —— 研发可以一次做完覆盖两条线。第四张烟感是纯新增能力，模板结构不同：左侧不是「能力更弱」，而是「完全没有」。",
+    tips:[
+      {c:"gn", h:"① 室内的差异化不在功能，在场景措辞",
+       b:"人脸 / 云存 / 通知这三条，门铃和室内的<b>功能完全一样</b>，但用户要解决的事不一样，文案必须换：<br>· <b>人脸</b> —— 门铃是「门口那个人是谁」（防范），室内是「<b>Emma's home</b>」（<b>确认安心</b>）。这是室内最强的情绪，比讲陌生人有效得多，美国双职工家庭对「孩子放学到家没有」有真实焦虑。<br>· <b>云存</b> —— 门铃讲「门铃被拆走云端还在」，室内讲「<b>拔电也擦不掉</b>」，因为室内摄像头的失效方式是被遮挡 / 被拔，不是被偷。<br>· <b>通知</b> —— 门铃讲「街上的车」，室内讲「<b>自家人不是入侵者</b>」。<br><b>同一套组件、三套文案，这是这个模块最省成本的地方。</b>"},
+      {c:"rd", h:"② 烟感卡有两个必须处理的问题",
+       b:"<b>(a) 卡片数量随机型变。</b>烟感仅 C2E 支持，其他室内机型只能出三卡。上方切「其他室内机型」可以看到第四卡消失、圆点变三个。<b>研发必须把卡片列表做成按机型下发，不能写死四张</b> —— 否则非 C2E 用户买完发现没有这个功能，属预期落差（和之前门铃事件页 AI Summary 那个问题同一类）。<br><b>(b) 文案不能做安全承诺。</b>这是生命安全类能力，<b>不能暗示替代专业消防监控</b>。「Call 911」按钮是让<b>用户自己</b>打，不是我们代打；不能写「we'll alert the fire department」这类表述。Demo 里的「Alerted in 4 seconds」指的是推送延迟，上线前<b>这个数字要用真实压测值</b>，写不出来就删掉，不要用「instantly」。"},
+      {c:"am", h:"③ 「Emma」这个名字需要真实感与隐私的平衡",
+       b:"Demo 用了具体名字，因为它比「Family member」有力得多。但要注意两点：<b>命名功能需要用户自己录入</b>，首订用户还没有任何已命名的人脸，所以商城页展示的名字只能是<b>演示占位</b>，不能让用户误以为开通即有。建议加一行极小的说明「Example. You name the faces you recognize.」<br>另外 <b>EU 的人脸识别可用性与合规状态仍未确认</b>，这张卡在欧洲能不能出要单独确认，不能默认复用美区素材。"},
+      {c:"", h:"④ 「31 → 2」需要真实统计",
+       b:"和门铃版同一个问题。室内线的通知量结构和门铃不同（自家人持续触发，不是街上车流），<b>不能沿用门铃的数字</b>。建议一并向数分提：室内线单设备日均通知数、其中自家已命名人脸 / 宠物 / 陌生人的占比。这组数据同时也是「降噪比例」这个卖点能不能量化表述的前提。"}
+    ]}
+};
+
+/* ================================================================
+   渲染
+   ================================================================ */
+let curLine="out", curOrder="mine", curCard=0, phase=0, playing=true, inModel="c2e";
+const $ = id=>document.getElementById(id);
+let live=[];   /* [{def, el, sc}] */
+
+function cardList(){
+  const L=LINES[curLine];
+  let ks=L.order[curOrder].slice();
+  if(curLine==="in" && inModel!=="c2e") ks=ks.filter(k=>k!=="smoke");
+  return ks.map(k=>L.cards[k]);
+}
+
+function build(){
+  const L=LINES[curLine], car=$("car");
+  car.innerHTML=""; live=[];
+  cardList().forEach((d,i)=>{
+    const sc = d.sc;
+    car.insertAdjacentHTML("beforeend",
+      `<div class="card" data-i="${i}">
+         <div class="ct">${d.ct}</div>
+         <div class="cs">${d.cs}</div>
+         <div class="hdr"><span class="hl">${d.hl}</span><span class="hr${d.pm?" pm":""}">${d.hr}</span></div>
+         <div class="split"><span class="dv"></span>
+           <div class="pane l">${sc.l}</div><div class="pane r">${sc.r}</div></div>
+         <div class="take${d.pm?" pm":""}"><i>${d.take[0]}</i><span>${d.take[1]}</span></div>
+       </div>`);
+    const el=car.lastElementChild;
+    if(sc.init) sc.init(el);
+    live.push({d, el, sc});
+  });
+  /* dots */
+  $("dots").innerHTML = live.map((_,i)=>`<i class="${i===0?"on":""}"></i>`).join("");
+  [...$("dots").children].forEach((dt,i)=>dt.onclick=()=>{
+    const w=car.querySelector(".card").offsetWidth+9;
+    car.scrollTo({left:i*w, behavior:"smooth"});
+  });
+  $("hint").textContent = "SWIPE TO SEE "+(live.length-1)+" MORE ›";
+
+  /* footer */
+  $("navT").textContent=L.nav; $("copy").innerHTML=L.copy;
+  $("pvM").innerHTML=L.price.m+'<u>/mo</u>';
+  $("pvA").innerHTML=L.price.y+'<u>/yr</u><s>'+L.price.yl+'</s>';
+  $("pbA").textContent="-"+Math.round((1-parseFloat(L.price.y.slice(1))/parseFloat(L.price.yl.slice(1)))*100)+"%";
+  $("cta").textContent=L.cta; $("cta").className="cta"+(L.pm?" pm":"");
+  $("prA").className="pr sel"+(L.pm?" pm":"");
+  $("fine").innerHTML=L.price.y+"/yr after 30-day free trial.<br>Cancel anytime.";
+
+  /* panel */
+  $("pnH").textContent=L.name+"线 · 四张卡分别在演什么";
+  $("pnRows").innerHTML = cardList().map((d,i)=>`<tr>
+      <td class="u">${["①","②","③","④"][i]} ${{cloud:"云存",desc:"描述性通知",recap:"AI Summary",search:"AI 检索",face:"人脸",alerts:"通知降噪",smoke:"烟感"}[d.id]}</td>
+      <td>${d.row[0]}</td><td>${d.row[1]}</td>
+      <td class="c"><span class="chp${d.row[2]==="Premium"?" pm":""}">${d.row[2]}</span></td></tr>`).join("");
+  $("pnWhy").innerHTML=L.why;
+  $("pnTips").innerHTML=L.tips.map(t=>
+    `<div class="tip ${t.c}"><b>${t.h}</b><br>${t.b}</div>`).join("");
+
+  curCard=0; phase=0; car.scrollLeft=0; resetAll(); sync();
+}
+function resetAll(){ live.forEach(x=>{ if(x.sc.reset) x.sc.reset(x.el); }); }
+
+setInterval(()=>{
+  if(!playing || !live.length) return;
+  phase=(phase+1)%54;
+  if(phase===0) resetAll();
+  const c=live[Math.min(curCard,live.length-1)];
+  if(c && c.sc.paint) c.sc.paint(c.el, phase);
+},100);
+
+function sync(){
+  const car=$("car"), first=car.querySelector(".card"); if(!first) return;
+  const w=first.offsetWidth+9;
+  const k=Math.min(live.length-1, Math.max(0, Math.round(car.scrollLeft/w)));
+  if(k!==curCard){ curCard=k; phase=0; resetAll(); }
+  [...$("dots").children].forEach((d,i)=>d.classList.toggle("on", i===curCard));
+  $("hint").style.opacity = curCard===0 ? 1 : 0;
+}
+$("car").addEventListener("scroll",()=>{clearTimeout(window._t);window._t=setTimeout(sync,60);});
+let dn=false,sx=0,sl=0;
+$("car").addEventListener("mousedown",e=>{dn=true;sx=e.pageX;sl=$("car").scrollLeft;$("car").classList.add("drag");});
+window.addEventListener("mouseup",()=>{if(dn){dn=false;$("car").classList.remove("drag");
+  const w=$("car").querySelector(".card").offsetWidth+9;
+  $("car").scrollTo({left:Math.round($("car").scrollLeft/w)*w,behavior:"smooth"});}});
+window.addEventListener("mousemove",e=>{if(dn){e.preventDefault();$("car").scrollLeft=sl-(e.pageX-sx);}});
+
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on"); curLine=t.dataset.l; build();
+});
+function seg(id,fn){
+  const e=$(id);
+  e.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    e.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); fn(b.dataset.v);
+  });
+}
+seg("sgOrder",v=>{curOrder=v;build();});
+seg("sgModel",v=>{inModel=v; if(curLine==="in") build();});
+seg("sgPlay", v=>{playing=(v==="on");});
+$("prM").onclick=()=>{const L=LINES[curLine];$("prM").classList.add("sel");$("prA").classList.remove("sel");
+  $("fine").innerHTML=L.price.m+"/mo after 30-day free trial.<br>Cancel anytime.";};
+$("prA").onclick=()=>{const L=LINES[curLine];$("prA").classList.add("sel");$("prM").classList.remove("sel");
+  $("fine").innerHTML=L.price.y+"/yr after 30-day free trial.<br>Cancel anytime.";};
+
+(function(){
+  const end=Date.now()+(47*3600+12*60+28)*1000, pad=n=>n<10?"0"+n:""+n;
+  function tick(){const d=Math.max(0,Math.floor((end-Date.now())/1000));
+    $("ch").textContent=pad(Math.floor(d/3600));
+    $("cm").textContent=pad(Math.floor(d%3600/60));
+    $("cs").textContent=pad(d%60);}
+  tick();setInterval(tick,1000);
+})();
+
+build();
+</script>
+</body>
+</html>
