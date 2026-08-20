@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glazero Admin · 商城内容配置 Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+background:#eef1f5;color:rgba(0,0,0,.88);padding:22px 18px 60px;line-height:1.5715;font-size:14px}
+.wrap{max-width:1560px;margin:0 auto}
+h1{font-size:22px;font-weight:700;color:#1B5A9E;margin-bottom:4px}
+.sub{font-size:13px;color:#667;margin-bottom:14px}
+.ctrls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #e0e5ea;
+border-radius:10px;padding:10px 14px;margin-bottom:16px}
+.ctrls span.lb{font-size:12.5px;color:#5a636e;font-weight:600}
+.seg{display:flex;border:1px solid #d3d9e0;border-radius:7px;overflow:hidden;flex-wrap:wrap}
+.seg button{padding:6px 12px;font-size:12.5px;background:#fff;border:0;cursor:pointer;color:#4a535e;font-weight:600}
+.seg button+button{border-left:1px solid #d3d9e0}
+.seg button.on{background:#1677ff;color:#fff}
+
+/* ============ Admin 外壳 ============ */
+.admin{display:flex;background:#fff;border-radius:8px;overflow:hidden;
+box-shadow:0 6px 24px rgba(15,30,50,.12);border:1px solid #e8ebef;min-height:760px}
+.rail{width:56px;background:#fff;border-right:1px solid #f0f0f0;padding-top:10px;flex:0 0 56px}
+.rail .lg{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+margin:0 auto 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800}
+.rail .ri{text-align:center;padding:10px 0;font-size:11px;color:rgba(0,0,0,.5)}
+.rail .ri i{display:block;font-style:normal;font-size:16px;margin-bottom:2px}
+.rail .ri.on{background:#1677ff;color:#fff}
+.side{width:196px;border-right:1px solid #f0f0f0;flex:0 0 196px;padding:14px 0}
+.side .ttl{font-size:16px;font-weight:700;padding:0 16px 14px}
+.side .mi{padding:9px 16px;font-size:13.5px;color:rgba(0,0,0,.85);display:flex;align-items:center;gap:8px;cursor:pointer}
+.side .mi i{font-style:normal;font-size:13px;color:rgba(0,0,0,.45)}
+.side .mi .ar{margin-left:auto;font-size:10px;color:rgba(0,0,0,.35)}
+.side .sub2{padding:8px 16px 8px 38px;font-size:13.5px;color:rgba(0,0,0,.85);cursor:pointer;position:relative}
+.side .sub2:hover{background:#f5f5f5}
+.side .sub2.on{background:#e6f4ff;color:#1677ff;font-weight:600}
+.side .sub2.new{outline:1.5px solid #ff4d4f;outline-offset:-2px;border-radius:4px}
+body.noann .side .sub2.new{outline:none}
+.main{flex:1;min-width:0;background:#f5f7fa}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#fff;border-bottom:1px solid #f0f0f0;
+font-size:13px;color:rgba(0,0,0,.65)}
+.topbar .bc{display:flex;align-items:center;gap:6px}
+.topbar .rt{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12.5px}
+.topbar .pill{border:1px solid #d9d9d9;border-radius:6px;padding:3px 9px;display:flex;align-items:center;gap:5px}
+.tabs{display:flex;gap:2px;padding:7px 12px 0;background:#fff;border-bottom:1px solid #f0f0f0}
+.tabs .t{padding:5px 12px;font-size:13px;color:rgba(0,0,0,.7);border:1px solid #f0f0f0;border-bottom:0;
+border-radius:6px 6px 0 0;background:#fafafa;display:flex;align-items:center;gap:7px}
+.tabs .t.on{background:#fff;color:#1677ff;border-color:#e6e6e6}
+.tabs .t s{text-decoration:none;color:rgba(0,0,0,.3);font-size:12px}
+.body{padding:14px}
+.card{background:#fff;border-radius:8px;padding:18px 20px}
+
+/* ---- 表单条 ---- */
+.filter{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:16px}
+.fi{display:flex;align-items:center;gap:8px}
+.fi label{font-size:13.5px;color:rgba(0,0,0,.88);white-space:nowrap}
+.inp{border:1px solid #d9d9d9;border-radius:6px;padding:5px 11px;font-size:13.5px;color:rgba(0,0,0,.35);
+min-width:200px;background:#fff}
+.inp.sel:after{content:"⌄";float:right;color:rgba(0,0,0,.25)}
+.btn{border-radius:6px;padding:5px 15px;font-size:13.5px;cursor:pointer;border:1px solid #d9d9d9;background:#fff}
+.btn.pri{background:#1677ff;border-color:#1677ff;color:#fff}
+.btn.right{margin-left:auto}
+.hdrbtns{display:flex;gap:10px;justify-content:flex-end;padding-bottom:14px}
+
+/* ---- 表格 ---- */
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{background:#fafafa;font-weight:600;padding:11px 12px;text-align:left;
+border-bottom:1px solid #f0f0f0;color:rgba(0,0,0,.88);white-space:nowrap}
+table.t td{padding:11px 12px;border-bottom:1px solid #f0f0f0;color:rgba(0,0,0,.88);vertical-align:middle}
+table.t td.c,table.t th.c{text-align:center}
+table.t tr:hover td{background:#fafafa}
+.lk{color:#1677ff;cursor:pointer;margin-right:12px;font-size:13.5px}
+.lk.dg{color:#ff4d4f}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:4px;border:1px solid;line-height:20px}
+.tag.g{color:#389e0d;border-color:#b7eb8f;background:#f6ffed}
+.tag.o{color:#d46b08;border-color:#ffd591;background:#fff7e6}
+.tag.r{color:#cf1322;border-color:#ffa39e;background:#fff1f0}
+.tag.b{color:#0958d9;border-color:#91caff;background:#e6f4ff}
+.tag.n{color:rgba(0,0,0,.45);border-color:#d9d9d9;background:#fafafa}
+.newcol{background:#fffbe6!important;position:relative}
+body.noann .newcol{background:transparent!important}
+.pg{display:flex;align-items:center;gap:8px;padding-top:16px;font-size:13.5px;color:rgba(0,0,0,.65)}
+.pg .n{border:1px solid #d9d9d9;border-radius:6px;min-width:30px;height:30px;display:flex;
+align-items:center;justify-content:center;cursor:pointer;background:#fff}
+.pg .n.on{border-color:#1677ff;color:#1677ff}
+.pg .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+
+/* ---- 编辑页 ---- */
+.eh{display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px solid #f0f0f0;margin-bottom:18px}
+.eh .bk{color:#1677ff;cursor:pointer;font-size:13.5px}
+.eh h3{font-size:16px;font-weight:600}
+.sec{margin-bottom:22px}
+.sec .st{font-size:14px;font-weight:600;padding-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec .st em{font-style:normal;font-size:12px;font-weight:400;color:rgba(0,0,0,.45)}
+.row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.row .lab{width:96px;flex:0 0 96px;text-align:right;font-size:13.5px;color:rgba(0,0,0,.88);padding-top:5px}
+.row .lab.req:before{content:"*";color:#ff4d4f;margin-right:3px}
+.row .ctl{flex:1;min-width:0}
+.tin{width:100%;border:1px solid #d9d9d9;border-radius:6px;padding:5px 11px;font-size:13.5px;background:#fff}
+.tin.ph{color:rgba(0,0,0,.28)}
+.cnt{font-size:12px;color:rgba(0,0,0,.45);text-align:right;margin-top:3px}
+.cnt.over{color:#ff4d4f}
+.up{width:104px;height:104px;border:1px dashed #d9d9d9;border-radius:8px;background:#fafafa;
+display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;
+font-size:12px;color:rgba(0,0,0,.45)}
+.up i{font-style:normal;font-size:20px;color:rgba(0,0,0,.3)}
+.up.done{border-style:solid;border-color:#d9d9d9;background:linear-gradient(160deg,#AFC9E2,#7A9479);color:#fff;
+position:relative;overflow:hidden}
+.up.done b{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.45);font-size:11px;padding:3px;
+font-weight:400;text-align:center}
+.ups{display:flex;gap:14px;align-items:flex-start}
+.upw{text-align:center}
+.upw .cap{font-size:12px;color:rgba(0,0,0,.45);margin-top:6px}
+.btabs{display:flex;gap:2px;border-bottom:1px solid #f0f0f0;margin-bottom:16px}
+.btabs s{text-decoration:none;padding:8px 16px;font-size:13.5px;color:rgba(0,0,0,.88);cursor:pointer;
+border-bottom:2px solid transparent}
+.btabs s.on{color:#1677ff;border-bottom-color:#1677ff;font-weight:500}
+.bi{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bi .ic{width:38px;flex:0 0 38px;border:1px solid #d9d9d9;border-radius:6px;padding:5px;text-align:center;background:#fff}
+.bi .tx{flex:1}
+.bi .del{color:#ff4d4f;cursor:pointer;font-size:13px;flex:0 0 auto}
+.addb{border:1px dashed #d9d9d9;border-radius:6px;padding:6px;text-align:center;font-size:13.5px;
+color:rgba(0,0,0,.45);cursor:pointer;background:#fafafa}
+.foot{display:flex;gap:10px;padding-top:18px;border-top:1px solid #f0f0f0;margin-top:6px}
+.warnbar{background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:9px 12px;font-size:13px;
+color:rgba(0,0,0,.7);margin-bottom:16px;display:flex;gap:8px}
+.warnbar b{color:#d46b08}
+
+/* ---- 标注 ---- */
+.pin{position:absolute;z-index:20;width:20px;height:20px;border-radius:50%;background:#ff4d4f;color:#fff;
+font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;
+box-shadow:0 2px 6px rgba(255,77,79,.45);border:2px solid #fff}
+body.noann .pin{display:none}
+.rel{position:relative}
+
+/* ---- 说明面板 ---- */
+.panel{margin-top:16px}
+.pc{background:#fff;border:1px solid #e2e7ec;border-radius:11px;margin-bottom:11px;overflow:hidden}
+.pc h4{font-size:13.5px;font-weight:800;color:#16202b;padding:12px 15px 0}
+table.p{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+table.p th{background:#F1F4F8;color:#4a535e;font-weight:800;padding:7px 12px;text-align:left;border:1px solid #E4E8ED}
+table.p td{padding:7px 12px;border:1px solid #E9ECF0;color:#3a424c;vertical-align:top}
+table.p td.u{font-weight:800;color:#16202b}
+table.p td.n{text-align:center;font-weight:900;color:#ff4d4f;width:34px}
+.why{font-size:12px;color:#6b737c;line-height:1.65;padding:11px 15px}
+.why b{color:#1a2430}
+.tip{font-size:12px;color:#525a64;background:#fff;border-left:3px solid #1B5A9E;
+padding:11px 14px;border-radius:0 7px 7px 0;line-height:1.65;margin-bottom:10px}
+.tip b{color:#1a2430}
+.tip.rd{border-left-color:#C00000}
+.tip.am{border-left-color:#D98800;background:#FFFCF6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Glazero Admin · 后台配置 Demo</h1>
+  <div class="sub">在现有云商城后台上的两处改动：设备管理补两个字段（需求二）· 新增商城内容配置（需求三）· 红色圆点为新增部分</div>
+
+  <div class="ctrls">
+    <span class="lb">页面</span>
+    <div class="seg" id="sgView">
+      <button data-v="dev" class="on">设备管理（补字段）</button>
+      <button data-v="list">商城内容配置 · 列表</button>
+      <button data-v="ea">编辑 · 实验组A</button>
+      <button data-v="eb">编辑 · 实验组B</button>
+    </div>
+    <span class="lb">标注</span>
+    <div class="seg" id="sgAnn"><button data-v="on" class="on">显示</button><button data-v="off">隐藏</button></div>
+  </div>
+
+  <!-- ==================== ADMIN ==================== -->
+  <div class="admin">
+    <div class="rail">
+      <div class="lg">Glazero</div>
+      <div class="ri"><i>⊞</i>首页</div>
+      <div class="ri"><i>⚙</i>IoT</div>
+      <div class="ri on"><i>🛒</i>云商城</div>
+    </div>
+
+    <div class="side">
+      <div class="ttl">Glazero Admin</div>
+      <div class="mi"><i>🛒</i>套餐商品管理<span class="ar">⌄</span></div>
+      <div class="mi"><i>◫</i>营销规则配置<span class="ar">⌄</span></div>
+      <div class="mi"><i>▤</i>权益管理<span class="ar">⌃</span></div>
+      <div class="sub2" data-go="dev">设备管理</div>
+      <div class="sub2">设备权益矩阵</div>
+      <div class="sub2">权益管理</div>
+      <div class="sub2">物料管理</div>
+      <div class="sub2">权益展示管理</div>
+      <div class="rel"><div class="sub2 new" data-go="list">商城内容配置<span class="pin" style="right:6px;top:6px">1</span></div></div>
+      <div class="mi"><i>☁</i>云存管理<span class="ar">⌄</span></div>
+      <div class="mi"><i>👤</i>用户套餐管理</div>
+      <div class="mi"><i>📄</i>订单管理</div>
+      <div class="mi"><i>🎟</i>兑换码管理</div>
+    </div>
+
+    <div class="main">
+      <div class="topbar">
+        <span>⟳</span>
+        <div class="bc"><span>🛒 云商城</span><span>›</span><span>权益管理</span><span>›</span>
+          <span id="bcLast" style="color:rgba(0,0,0,.88)">设备管理</span></div>
+        <div class="rt">
+          <span class="pill">🇨🇳 中国 ⌄</span><span class="pill">glazero ⌄</span>
+          <span>🌙</span><span>文A</span><span>⛶</span>
+        </div>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="body"><div class="card" id="view"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== 说明 ==================== -->
+  <div class="panel" id="panel"></div>
+</div>
+
+<script>
+/* ================= 视图 ================= */
+const DEV_ROWS = [
+ ["C2E","aosu","-","门铃","否","free 3 / basic 6 / pro 14 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["C2E2DA11","aosu","-","室内","否","free 3 / basic 8 / pro 17 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["C2E2D","aosu","1 组|H2E、H2EZ1","室内","否","free 3 / basic 8 / pro 12 / pre 0","free 3 / basic 6 / pro 14 / pre 19"],
+ ["C2P","aosu","-","室内","否","free 3 / basic 5 / pro 9 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["C2PZ1","aosu","-","室内","否","free 3 / basic 5 / pro 8 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["V8S21","aosu","-","门铃","否","free 3 / basic 7 / pro 10 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["V8SZ2","aosu","-","门铃","否","free 3 / basic 7 / pro 10 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["V8P","aosu","-","门铃","否","free 3 / basic 8 / pro 16 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["V8PZ1","aosu","-","!!未填","否","free 3 / basic 8 / pro 16 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+ ["V8S","aosu","-","门铃","!!是","free 3 / basic 7 / pro 15 / pre 0","free 0 / basic 0 / pro 0 / pre 0"],
+];
+
+function devView(){
+  return `
+  <div class="hdrbtns"><span class="btn">?</span><span class="btn">刷新 S3</span><span class="btn pri">新增设备</span></div>
+  <div class="filter">
+    <div class="fi"><label>设备型号</label><div class="inp">请输入设备型号</div></div>
+    <div class="fi"><label>所属渠道</label><div class="inp sel">请选择所属渠道</div></div>
+    <div class="fi rel" style="margin-left:0">
+      <label>产品线</label><div class="inp sel" style="min-width:150px">请选择产品线</div>
+      <span class="pin" style="right:-8px;top:-8px">3</span></div>
+    <div class="btn right">重 置</div><div class="btn pri">搜 索</div>
+  </div>
+  <table class="t"><tr>
+    <th>设备型号</th><th>所属渠道</th><th>连接基站型号</th>
+    <th class="newcol rel">产品线<span class="pin" style="right:2px;top:2px">2</span></th>
+    <th class="newcol">自带本地存储</th>
+    <th>权益</th><th>基站权益</th><th>更新时间</th><th>操作</th></tr>
+  ${DEV_ROWS.map(r=>{
+    const pl = r[3].startsWith("!!");
+    const st = r[4].startsWith("!!");
+    return `<tr>
+    <td>${r[0]}</td><td>${r[1]}</td>
+    <td>${r[2].split("|").map((x,i)=>i?`<div style="font-size:12px;color:rgba(0,0,0,.45)">${x}</div>`:x).join("")}</td>
+    <td class="newcol">${pl?'<span class="tag r">未填</span>':'<span class="tag b">'+r[3]+'</span>'}</td>
+    <td class="newcol">${st?'<span class="tag o">是</span>':'<span class="tag n">否</span>'}</td>
+    <td>${r[5]}<div style="color:#1677ff;font-size:12px;cursor:pointer">查看</div></td>
+    <td style="color:${r[6].includes("pre 19")?"inherit":"rgba(0,0,0,.35)"}">${r[6]}
+      <div style="color:${r[6].includes("pre 19")?"#1677ff":"rgba(0,0,0,.25)"};font-size:12px">查看</div></td>
+    <td style="white-space:nowrap">2026-08-11 15:51:18</td>
+    <td style="white-space:nowrap"><span class="lk">编辑</span><span class="lk">编辑权益</span><span class="lk">编辑基站权益</span><span class="lk dg">删除</span></td>
+    </tr>`;}).join("")}
+  </table>
+  <div class="pg"><span>共 71 条记录</span><div class="inp sel" style="min-width:90px;color:rgba(0,0,0,.88)">10条/页</div>
+    <div class="r"><span class="n">‹</span><span class="n on">1</span><span class="n">2</span><span class="n">3</span>
+    <span class="n">4</span><span class="n">5</span><span class="n">›</span></div></div>`;
+}
+
+const PLANS = [
+ ["实验组A 左右对比","门铃","done","1 / 1","2026-08-19 14:02"],
+ ["实验组A 左右对比","室外","done","1 / 1","2026-08-19 14:05"],
+ ["实验组A 左右对比","室内","done","1 / 1","2026-08-19 14:08"],
+ ["实验组A 左右对比","兜底","none","0 / 1","—"],
+ ["实验组B 三张静态图","门铃","done","6 / 6","2026-08-19 16:20"],
+ ["实验组B 三张静态图","室外","part","4 / 6","2026-08-19 16:31"],
+ ["实验组B 三张静态图","室内","done","6 / 6","2026-08-19 16:44"],
+ ["实验组B 三张静态图","兜底","none","0 / 6","—"],
+];
+function listView(){
+  return `
+  <div class="warnbar rel"><b>⚠</b><div><b>兜底版尚未配置，实验不能开跑。</b>
+    产品线未填、或内容缺失的设备都会落到兜底版，它是最后一道保障。
+    <span class="pin" style="right:8px;top:8px">4</span></div></div>
+  <div class="hdrbtns"><span class="btn">批量预览</span><span class="btn pri">新增配置</span></div>
+  <div class="filter">
+    <div class="fi"><label>实验组</label><div class="inp sel">全部</div></div>
+    <div class="fi"><label>商城版本</label><div class="inp sel">全部</div></div>
+    <div class="btn right">重 置</div><div class="btn pri">搜 索</div>
+  </div>
+  <table class="t"><tr>
+    <th>实验组</th><th>商城版本</th><th class="c">内容状态</th><th class="c">素材</th><th>更新时间</th><th>操作</th></tr>
+  ${PLANS.map(p=>{
+    const s = p[2]==="done" ? '<span class="tag g">已配齐</span>'
+            : p[2]==="part" ? '<span class="tag o">缺素材</span>'
+            : '<span class="tag r">未配置</span>';
+    return `<tr>
+      <td>${p[0]}</td>
+      <td>${p[1]==="兜底"?'<b>'+p[1]+'</b>':p[1]}</td>
+      <td class="c">${s}</td><td class="c">${p[3]}</td><td>${p[4]}</td>
+      <td><span class="lk" data-go="${p[0].includes("A")?"ea":"eb"}">编辑内容</span><span class="lk">预览</span><span class="lk">复制</span></td>
+    </tr>`;}).join("")}
+  </table>
+  <div class="pg"><span>共 8 条记录</span>
+    <div class="r"><span class="n on">1</span></div></div>`;
+}
+
+function eaView(){
+  return `
+  <div class="eh"><span class="bk" data-go="list">‹ 返回</span><h3>编辑内容 · 实验组A 左右对比 / 门铃</h3></div>
+
+  <div class="sec"><div class="st">设备主图 <em>左右分屏中间的设备图，按商城版本各一张</em></div>
+    <div class="row"><div class="lab req">主图</div><div class="ctl">
+      <div class="up done"><b>doorbell_hero.webp</b></div></div></div></div>
+
+  <div class="sec rel"><div class="st">左列 · Free 权益 <em>固定 3 条，不随档位变化</em>
+      <span class="pin" style="left:186px;top:-2px">5</span></div>
+    <div class="row"><div class="lab">列头文案</div><div class="ctl"><input class="tin" value="FREE"></div></div>
+    ${[["🖼","Event Image"],["👁","Live View"],["〰","Motion Detected"]].map(b=>`
+    <div class="row"><div class="lab"></div><div class="ctl">
+      <div class="bi"><div class="ic">${b[0]}</div><input class="tin tx" value="${b[1]}"><span class="del">删除</span></div>
+    </div></div>`).join("")}
+  </div>
+
+  <div class="sec rel"><div class="st">右列 · 各档位权益 <em>用户在商城页选中哪一档，右列就展示哪一组</em>
+      <span class="pin" style="left:206px;top:-2px">6</span></div>
+    <div class="btabs" id="tierTabs"><s class="on">Basic</s><s>Pro</s><s data-dis="1" style="color:rgba(0,0,0,.25)">Premium（门铃不展示）</s></div>
+    <div class="row"><div class="lab">列头文案</div><div class="ctl"><input class="tin" value="WITH BASIC"></div></div>
+    ${[["📹","Full Video Recording"],["🗄","30-Day Video History"],["🗂","Event Categories"],["🔒","Encrypted Cloud Backup"]].map(b=>`
+    <div class="row"><div class="lab"></div><div class="ctl">
+      <div class="bi"><div class="ic">${b[0]}</div><input class="tin tx" value="${b[1]}"><span class="del">删除</span></div>
+    </div></div>`).join("")}
+    <div class="row"><div class="lab"></div><div class="ctl"><div class="addb">＋ 添加一条（当前 4 条，建议 3–5 条）</div></div></div>
+  </div>
+
+  <div class="foot"><span class="btn pri">保 存</span><span class="btn">预览效果</span><span class="btn">取 消</span></div>`;
+}
+
+const CARDS = [
+ {t:"Motion, or Alex?", s:"Free tells you something moved. Pro tells you it's your neighbor — before you get up.",
+  f:"🙂 Stranger, neighbor, or named — you know before you open the door.", l:"db_face_free.webp", r:"db_face_pro.webp"},
+ {t:"The claim comes in March.", s:"Free leaves you a still image. Pro leaves you 180 days of video you can actually use.",
+  f:"🗄 A photo isn't evidence. A clip is.", l:"db_cloud_free.webp", r:"db_cloud_pro.webp"},
+ {t:"14 alerts, or 2?", s:"Your doorbell faces the street. Free pushes every bit of motion. Pro pushes the two you'd get up for.",
+  f:"🔕 Users who mute alerts almost never come back to subscribe.", l:"", r:""}
+];
+function ebView(){
+  const c = CARDS[0];
+  return `
+  <div class="eh"><span class="bk" data-go="list">‹ 返回</span><h3>编辑内容 · 实验组B 三张静态图 / 门铃</h3></div>
+
+  <div class="btabs" id="cardTabs"><s class="on">图一 · 人脸</s><s>图二 · 云存</s>
+    <s>图三 · 通知 <span class="tag r" style="margin-left:4px">缺素材</span></s></div>
+
+  <div class="sec"><div class="st">文案 <em>四模块结构，字符数超限会在小屏截断</em></div>
+    <div class="row"><div class="lab req">主标题</div><div class="ctl">
+      <input class="tin" value="${c.t}"><div class="cnt">17 / 30</div></div></div>
+    <div class="row"><div class="lab req">副标题</div><div class="ctl">
+      <input class="tin" value="${c.s}"><div class="cnt">85 / 110</div></div></div>
+    <div class="row"><div class="lab req">底部文案</div><div class="ctl">
+      <input class="tin" value="${c.f}"><div class="cnt">62 / 70</div></div></div>
+  </div>
+
+  <div class="sec rel"><div class="st">对比图 <em>左右各一张，同一素材的两种标注</em>
+      <span class="pin" style="left:150px;top:-2px">7</span></div>
+    <div class="row"><div class="lab req">图片</div><div class="ctl"><div class="ups">
+      <div class="upw"><div class="up done"><b>${c.l}</b></div><div class="cap">左 · Free 态</div></div>
+      <div class="upw"><div class="up done" style="background:linear-gradient(160deg,#3480CE,#1C5CA4)"><b>${c.r}</b></div><div class="cap">右 · 付费态</div></div>
+    </div></div></div>
+    <div class="row"><div class="lab">列头文案</div><div class="ctl" style="display:flex;gap:10px">
+      <input class="tin" value="FREE" style="max-width:180px">
+      <input class="tin" value="WITH PRO" style="max-width:180px"></div></div>
+  </div>
+
+  <div class="warnbar"><b>⚠</b><div>图三的两张素材尚未上传，本配置状态为「缺素材」，不会下发到线上，命中的用户会落到兜底版。</div></div>
+
+  <div class="foot"><span class="btn pri">保 存</span><span class="btn">预览效果</span><span class="btn">取 消</span></div>`;
+}
+
+/* ================= 说明面板 ================= */
+const PANEL = {
+ dev:`<div class="pc"><h4>设备管理 · 需求二的全部改动</h4>
+   <table class="p"><tr><th class="n">#</th><th style="width:22%">改动</th><th>说明</th></tr>
+   <tr><td class="n">2</td><td class="u">新增两列：产品线 / 自带本地存储</td>
+     <td><b>产品线</b>决定用哪一套商城内容；<b>自带本地存储</b>决定云存卖点怎么写——V8S 自带存储，文案不能说「什么都没录」。表中 V8S 已标为「是」。</td></tr>
+   <tr><td class="n">3</td><td class="u">筛选条增加产品线</td>
+     <td>71 条机型要补录，按产品线筛选能一批一批填，也方便核对有没有漏。</td></tr>
+   </table>
+   <div class="why"><b>V8PZ1 那行故意留成「未填」</b>——用来演示：产品线为空时不阻塞任何流程，该设备的用户直接走兜底版商城，同时后台上报一条告警。不会白屏，但要能被发现。</div></div>
+   <div class="tip"><b>现有字段直接复用，没有重复建设：</b>档位行展示哪几档 → 从「权益」列推导（<code>pre 0</code> 即不展示 Premium）；是否绑基站 → 「连接基站型号」列；绑基站后的权益差异 → 「基站权益」列（C2E2D 绑基站后 pre 从 0 变 19）。</div>
+   <div class="tip am"><b>待确认：</b>「权益数为 0」是否等价于「档位行不展示该档」。若存在「有权益但不想展示」或「无权益但仍要展示」的情况，就需要再加一个可见档位字段，而不是推导。</div>`,
+
+ list:`<div class="pc"><h4>商城内容配置 · 需求三的主界面</h4>
+   <table class="p"><tr><th class="n">#</th><th style="width:22%">设计</th><th>说明</th></tr>
+   <tr><td class="n">1</td><td class="u">新增二级菜单</td>
+     <td>放在「权益管理」下，与设备管理同级。内容配置和权益配置是两件事：权益管理配「这个机型有哪些权益」，内容配置配「商城页怎么把这些权益讲出来」。</td></tr>
+   <tr><td class="n">4</td><td class="u">兜底版未配置时顶部常驻告警</td>
+     <td>兜底版是所有异常情况的最后一道保障，没配齐实验就不能开跑。放在列表页顶部而不是等保存时才提示。</td></tr>
+   </table>
+   <div class="why"><b>一共只有 8 条记录：2 个实验组 × 4 个商城版本。</b>对照组用现网内容，不需要配置，所以不在列表里。<br>
+   不按机型配、不按大区配、不按档位拆行——各档位的内容在编辑页内部用 tab 切换，属于同一条配置。</div></div>
+   <div class="tip"><b>三种状态的处理不同：</b><span class="tag g">已配齐</span> 正常下发；<span class="tag o">缺素材</span> 不下发，命中的用户落兜底版；<span class="tag r">未配置</span> 同上。<b>状态由系统自动判定，不需要人工标记</b>——素材传齐了自动变绿。</div>
+   <div class="tip am"><b>「复制」这个操作值得保留：</b>四个商城版本的结构完全一样，只是文案和素材不同。从门铃复制一份改成室内，比从零填快得多。兜底版尤其适合复制某个已配好的版本再改。</div>`,
+
+ ea:`<div class="pc"><h4>实验组 A 的编辑页</h4>
+   <table class="p"><tr><th class="n">#</th><th style="width:22%">设计</th><th>说明</th></tr>
+   <tr><td class="n">5</td><td class="u">左列固定 3 条，不随档位变</td>
+     <td>左侧永远是 Free 的真实能力。这三条是全线通用的，理论上可以做成全局配置，但放在每个版本里更灵活——万一某条产品线要换措辞不用改全局。</td></tr>
+   <tr><td class="n">6</td><td class="u">右列按档位 tab 切换</td>
+     <td>用户在商城页选中哪一档，右列就展示哪一组。<b>这三组属于同一条配置，不拆成三条记录</b>，因为它们共用同一张设备主图和同一套左列。</td></tr>
+   </table>
+   <div class="why"><b>Premium 这个 tab 是灰的</b>，因为门铃线在设备管理里 pre 权益数为 0。档位可见性由设备管理那边决定，内容配置这边跟随，不重复配一遍。</div></div>
+   <div class="tip"><b>图标怎么选需要定一下：</b>Demo 里用的是 emoji，实际可能需要一套图标库或允许上传。这一项影响设计交付方式，建议先确认。</div>`,
+
+ eb:`<div class="pc"><h4>实验组 B 的编辑页</h4>
+   <table class="p"><tr><th class="n">#</th><th style="width:22%">设计</th><th>说明</th></tr>
+   <tr><td class="n">7</td><td class="u">左右两张图，一张卡片一组</td>
+     <td>同一段素材的两种标注：左边褪色 + Free 标注，右边满色 + 付费标注。<b>不是两张不同的照片</b>，这一点要在素材需求里跟设计讲清楚。</td></tr>
+   </table>
+   <div class="why"><b>三张图用 tab 切换，属于同一条配置。</b>轮播顺序就是 tab 顺序，需要调整顺序时建议支持拖拽。<br>
+   字符计数是必要的：主标题 30、副标题 110、底部文案 70。<b>超出会在小屏截断</b>，而运营在后台看不出来，所以要在输入时就拦住。</div></div>
+   <div class="tip rd"><b>缺素材时的行为要明确：</b>Demo 中图三未上传素材，整条配置标为「缺素材」<b>且不下发</b>——不能只下发已配好的两张。三张一组是完整体验，缺一张的轮播比不轮播更糟。</div>
+   <div class="tip am"><b>预览功能建议不要砍。</b>文案和素材分开填的时候，运营看不出合起来长什么样。没有预览就只能发到测试环境看，一轮要等半天。</div>`
+};
+
+/* ================= 渲染 ================= */
+const V = {dev:devView, list:listView, ea:eaView, eb:ebView};
+const BC = {dev:"设备管理", list:"商城内容配置", ea:"商城内容配置", eb:"商城内容配置"};
+const TABS = {
+  dev:[["工作台",0],["设备日志",0],["设备信息",0],["权益管理",0],["设备管理",1]],
+  list:[["工作台",0],["设备管理",0],["商城内容配置",1]],
+  ea:[["工作台",0],["设备管理",0],["商城内容配置",1]],
+  eb:[["工作台",0],["设备管理",0],["商城内容配置",1]]
+};
+let cur="dev";
+function render(){
+  document.getElementById("view").innerHTML = V[cur]();
+  document.getElementById("bcLast").textContent = BC[cur];
+  document.getElementById("tabs").innerHTML = TABS[cur].map(t=>
+    `<div class="t${t[1]?" on":""}">${t[0]}<s>✕</s></div>`).join("");
+  document.getElementById("panel").innerHTML = PANEL[cur];
+  document.querySelectorAll(".sub2").forEach(e=>e.classList.toggle("on",
+    (cur==="dev"&&e.dataset.go==="dev")||(cur!=="dev"&&e.dataset.go==="list")));
+  document.querySelectorAll("[data-go]").forEach(e=>e.onclick=()=>{go(e.dataset.go);});
+  document.querySelectorAll(".btabs s").forEach(s=>s.onclick=()=>{
+    if(s.dataset.dis)return;
+    s.parentNode.querySelectorAll("s").forEach(x=>x.classList.remove("on"));
+    s.classList.add("on");});
+}
+function go(v){
+  cur=v;
+  document.querySelectorAll("#sgView button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  render();
+}
+function seg(id,fn){const e=document.getElementById(id);
+  e.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    e.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");fn(b.dataset.v);});}
+seg("sgView",v=>{cur=v;render();});
+seg("sgAnn",v=>document.body.classList.toggle("noann",v==="off"));
+render();
+</script>
+</body>
+</html>
